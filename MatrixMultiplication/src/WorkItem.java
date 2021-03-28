@@ -20,6 +20,13 @@ public class WorkItem {
 		
 	}
 	
+	private int[][] multiplyMatrix() {
+		
+		
+		return this.subC; 
+
+	}
+	
 	public void setDone() {
 		this.done = true;
 	}
