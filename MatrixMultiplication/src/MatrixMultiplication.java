@@ -11,15 +11,19 @@ public class MatrixMultiplication {
 		
 		// variables
 		SharedBuffer buff = new SharedBuffer(5);
-		int m = 3;
-		int n = 4;
-		int p = 3;
+		int m = 2;		// rows in Matrix A
+		int n = 3;		// columns in Matrix A, rows in Matrix B
+		int p = 2;		// columns in Matrix B
 		
 		// Create Producer and Consumer threads.
-		Thread t1 = new Thread(new Producer(buff, m, n, p));
-//		Thread t2 = new Thread(new Consumer(buff));
+		Producer producer1 = new Producer(buff, m, n, p);
+		Consumer consumer1 = new Consumer(buff, producer1);
+		
+		Thread t1 = new Thread(producer1);
+		Thread t2 = new Thread(consumer1);
+		
 		t1.start();
-//		t2.start();
+		t2.start();
 		
 	}
 

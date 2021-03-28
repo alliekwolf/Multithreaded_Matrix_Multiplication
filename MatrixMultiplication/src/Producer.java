@@ -17,9 +17,9 @@ public class Producer implements Runnable {
 	private int id;
 	private int[][] matrixA;
 	private int[][] matrixB;
-	private int m;
-	private int n;
-	private int p;
+	private int m;		// rows in Matrix A
+	private int n;		// columns in Matrix A, rows in Matrix B
+	private int p;		// columns in Matrix B
 	
 	// Constructor
 	public Producer(SharedBuffer buffer, int m, int n, int p) {
@@ -32,18 +32,28 @@ public class Producer implements Runnable {
 		this.matrixB = new int[this.n][this.p];
 	}
 	
+	
+	// Getters for Matrix A and Matrix B (just for testing)
+	public int[][] getMatrixA() {
+		return this.matrixA;
+	}
+	public int[][] getMatrixB() {
+		return this.matrixB;
+	}
+	
+	
 	@Override
 	public void run() {
 		
 		// Populate matrices.
-		populateMatrix(this.matrixA);
-		populateMatrix(this.matrixB);
+		populateMatrix(this.matrixA);	// Note: For testing. Will probably have to call populateMatrix() in the 
+		populateMatrix(this.matrixB);	// for loop below when we get the SharedBuffer working.
 		
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
 		// Put matrices in SharedBuffer
 		for (int i = 0; i < this.buffer.getMaxBuffSize(); i++) {
-			
+			// this.buffer.put();		// Not correct code, but this is how we will load the SharedBuffer.
 		}
 		
 	}
@@ -60,29 +70,29 @@ public class Producer implements Runnable {
 	
 	@Override
 	public String toString() {
-		String s = "Producer " + this.id + "\n";
-		s += "Matrix A: [";
-		for (int i = 0; i < this.matrixA.length; i++) {
-			if (i != 0) { 
-				s += String.format("%11s", "[");
+		String output = "Producer " + this.id + "\n";
+		output += "Matrix A: [";
+		for (int row = 0; row < this.matrixA.length; row++) {
+			if (row != 0) { 
+				output += String.format("%11s", "[");
 			}
-			for (int j = 0; j < this.matrixA[0].length; j++) {
-				s += " " + this.matrixA[i][j] + " ";
+			for (int column = 0; column < this.matrixA[0].length; column++) {
+				output += " " + this.matrixA[row][column] + " ";
 			}
-			s += "]\n";
+			output += "]\n";
 		}
 		
-		s += "Matrix B: [";
-		for (int i = 0; i < this.matrixB.length; i++) {
-			if (i != 0) { 
-				s += String.format("%11s", "[");
+		output += "Matrix B: [";
+		for (int row = 0; row < this.matrixB.length; row++) {
+			if (row != 0) { 
+				output += String.format("%11s", "[");
 			}
-			for (int j = 0; j < this.matrixB[0].length; j++) {
-				s += " " + this.matrixB[i][j] + " ";
+			for (int column = 0; column < this.matrixB[0].length; column++) {
+				output += " " + this.matrixB[row][column] + " ";
 			}
-			s += "]\n";
+			output += "]\n";
 		}
-		return s;
+		return output;
 	}
 	
 }
