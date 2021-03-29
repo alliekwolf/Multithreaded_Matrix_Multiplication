@@ -27,7 +27,7 @@ public class MatrixMultiplication {
 		int SplitSize = 3; 
 		
 		// the number of consumer threads
-		NumConsumer = 2;
+		int NumConsumer = 2;
 		
 		// the maximum sleep time of the producer thread 
 		// between puttin two pairs of sub-rows of A and sub-columns of B
@@ -81,7 +81,7 @@ public class MatrixMultiplication {
 		// number of times the buffer was empty...
 		int emptyBufferCount;
 		
-	
+		
 		
 	}
 
