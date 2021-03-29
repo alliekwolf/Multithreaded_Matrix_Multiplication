@@ -1,3 +1,11 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+import javax.swing.JFileChooser;
 
 /**
  * 
@@ -8,7 +16,10 @@
  */
 public class MatrixMultiplication {
 
-	public static void main(String[] args) {
+	
+
+	public static void main(String[] args) throws IOException {
+		Scanner console = new Scanner(System.in);
 
 		// number of rows in matrixA
 		int m = 10;
@@ -26,9 +37,9 @@ public class MatrixMultiplication {
 		Consumer consumer;
 		// the parameter to split rows of A into multiple sub-rows and
 		// the columns of B into multiple sub-columns
-		int SplitSize = 3;
+		int splitSize = 3;
 		// the number of consumer threads
-		int NumConsumer = 2;
+		int numConsumer = 2;
 		// the maximum sleep time of the producer thread
 		// between puttin two pairs of sub-rows of A and sub-columns of B
 		// into the shared queue (must wait before next subsections)
@@ -67,18 +78,66 @@ public class MatrixMultiplication {
 		// number of times the buffer was empty...
 		int emptyBufferCount;
 
+		System.out.println("Would you like to load and configuration file, Y or N");
+		String input = console.nextLine();
+		if (input.equals("Y") || input.equals("y")) {
+			String[] configurationArray = loadConfigurationFile();
+			m = Integer.parseInt(configurationArray[0]);
+			n = Integer.parseInt(configurationArray[1]);
+			p = Integer.parseInt(configurationArray[2]);
+			maxBuffSize = Integer.parseInt(configurationArray[3]);
+			splitSize = Integer.parseInt(configurationArray[4]);
+			numConsumer = Integer.parseInt(configurationArray[5]);
+			maxProducerSleepTime = Integer.parseInt(configurationArray[6]);
+			maxConsumerSleepTime = Integer.parseInt(configurationArray[7]);
+		}
+
 		matrixA = generateMatrix(m, n);
+		System.out.println("A");
+		outputMatrix(matrixA);
 		matrixB = generateMatrix(n, p);
+		System.out.println("B");
+		outputMatrix(matrixB);
 		sharedB = new SharedBuffer(maxBuffSize);
 		producer = new Producer(sharedB, m, n, p);
 		consumer = new Consumer(sharedB);
 		int[][] sequentialSolution = calculateMatrixMultiplication(matrixA, matrixB);
-		outputMatrixMultiplication(sequentialSolution);
+		outputMatrix(sequentialSolution);
 
 	}
 
-	public String loadConfigurationFile() {
-		return "nothing";
+	// methods
+	public static String[] loadConfigurationFile() throws IOException {
+		BufferedReader br;
+		File file;
+		String line;
+		String keyValue[];
+		String[] configurationArray = new String[8];
+
+		System.out.println("Select a configuration file to run.");
+
+		// open a configuration file to run.
+		// https://www.codejava.net/java-se/swing/show-simple-open-file-dialog-using-jfilechooser
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("."));
+		int result = fileChooser.showOpenDialog(null);
+		file = fileChooser.getSelectedFile();
+
+		try {
+			br = new BufferedReader(new FileReader(file));
+			for (int i = 0; i < 8; i++) {
+				line = br.readLine();
+				keyValue = line.split(" ");
+				configurationArray[i] = keyValue[2];
+
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("Cannot open file.");
+			e.printStackTrace();
+		}
+
+		return configurationArray;
 	}
 
 	// Code modified from this tutorial: https://www.youtube.com/watch?v=MZenB6qYqc0
@@ -95,7 +154,7 @@ public class MatrixMultiplication {
 	}
 
 	// from Allie's producer class
-	private static void outputMatrixMultiplication(int[][] m) {
+	private static void outputMatrix(int[][] m) {
 		String output = "Result: [";
 		for (int row = 0; row < m.length; row++) {
 			if (row != 0) {
@@ -109,7 +168,7 @@ public class MatrixMultiplication {
 		System.out.println(output);
 	}
 
-	//Again, Allie's solution from Consumer class.
+	// Again, Allie's solution from Consumer class.
 	public static int[][] calculateMatrixMultiplication(int[][] mA, int[][] mB) {
 
 		int[][] result = new int[mA.length][mB[0].length];
