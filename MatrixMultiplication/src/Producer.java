@@ -20,9 +20,10 @@ public class Producer implements Runnable {
 	private int m;		// rows in Matrix A
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
+	private int splitSize;
 	
 	// Constructor
-	public Producer(SharedBuffer buffer, int m, int n, int p) {
+	public Producer(SharedBuffer buffer, int m, int n, int p, int splitSize) {
 		this.buffer = buffer;
 		this.id = 1;
 		this.m = m;
@@ -30,6 +31,7 @@ public class Producer implements Runnable {
 		this.p = p;
 		this.matrixA = new int[this.m][this.n];
 		this.matrixB = new int[this.n][this.p];
+		this.splitSize = splitSize;
 	}
 	
 	
@@ -52,8 +54,23 @@ public class Producer implements Runnable {
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
 		// Put matrices in SharedBuffer
-		for (int i = 0; i < this.buffer.getMaxBuffSize(); i++) {
-			// this.buffer.put();		// Not correct code, but this is how we will load the SharedBuffer.
+		for (int i = 0; i < this.m; i++) {
+			int numOfRows = this.splitSize;		// may need to rename later...
+			int numOfColumns = this.n;
+			
+			int[][] subA = new int[numOfRows][numOfColumns];
+			int[][] subB = new int[numOfColumns][numOfRows];
+			
+			populateSubMatrix(subA, this.matrixA, i, 0);
+			
+			for (int j = 0; j < this.p; j++) {
+				populateSubMatrix(subB, this.matrixB, 0, j);
+				
+				WorkItem workItem = new WorkItem(subA, subB);
+				this.buffer.put(workItem);
+				
+				System.out.println(workItem.printSubMatrices());
+			}
 		}
 		
 	}
@@ -64,6 +81,16 @@ public class Producer implements Runnable {
 		for (int i = 0; i < numOfRows; i++) {
 			for (int j = 0; j < numOfColumns; j++) {
 				matrix[i][j] = rand.nextInt(RANGE);
+			}
+		}
+	}
+	
+	private void populateSubMatrix(int[][] subM, int[][] matrix, int rowIndex, int columnIndex) {
+		int numOfRows = subM.length;
+		int numOfColumns = subM[0].length;
+		for (int i = 0; i < numOfRows; i++) {
+			for (int j = 0; j < numOfColumns; j++) {
+				subM[i][j] = matrix[i+rowIndex][j+columnIndex];
 			}
 		}
 	}
@@ -82,7 +109,7 @@ public class Producer implements Runnable {
 			output += "]\n";
 		}
 		
-		output += "Matrix B: [";
+		output += "\nMatrix B: [";
 		for (int row = 0; row < this.matrixB.length; row++) {
 			if (row != 0) { 
 				output += String.format("%11s", "[");

@@ -25,11 +25,17 @@ public class Consumer implements Runnable {
 		this.buffer = buffer;
 		this.producer = producer;
 		this.id = 1;
-		this.sleepTime = 80;
+		this.sleepTime = 1000;
 	}
 	
 	@Override
 	public void run() {
+		
+		try {
+			Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		this.calculateMatrixMultiplication();
 		
@@ -38,17 +44,9 @@ public class Consumer implements Runnable {
 	// Code edited from this tutorial:  https://www.youtube.com/watch?v=MZenB6qYqc0
 	public void calculateMatrixMultiplication() {
 		
-		try {
-			Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		int[][] mA = producer.getMatrixA();		// Currently gets matrices from 'producer', 
-		int[][] mB = producer.getMatrixB();		// but will eventually get from 'buffer'.
-		
-		// this.buffer.get()		// This is where we will actually get the matrices from the SharedBuffer.
-		
+		WorkItem workItem = this.buffer.get();		// This is where we will actually get the matrices from the SharedBuffer.
+		int[][] mA = workItem.subA;
+		int[][] mB = workItem.subB;
 		int[][] result = new int[mA.length][mB[0].length];
 		
 		// Multiplication logic
@@ -59,6 +57,7 @@ public class Consumer implements Runnable {
 				}
 			}
 		}
+		workItem.setSubC(result);
 		
 		this.outputMatrixMultiplication(result);		// Print result of multiplication.
 	}

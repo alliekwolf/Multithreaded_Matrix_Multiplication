@@ -15,36 +15,27 @@ import javax.swing.JFileChooser;
  *
  */
 public class MatrixMultiplication {
-
 	
-
 	public static void main(String[] args) throws IOException {
 		Scanner console = new Scanner(System.in);
 
-		// number of rows in matrixA
-		int m = 10;
-		// number of columns in matrixA (also number of rows in matrixB
-		int n = 10;
-		// number of columns in matrixB
-		int p = 10;
-		// shared buffer object for the producer and consumer
-		SharedBuffer sharedB;
-		// maximum size of the shared buffer
-		int maxBuffSize = 5;
-		// Producer object
-		Producer producer;
-		// Consumer object;
-		Consumer consumer;
+		int m = 10;		// number of rows in Matrix A
+		int n = 10;		// number of columns in Matrix A, rows in Matrix B
+		int p = 10;		// number of columns in Matrix B
+		SharedBuffer buffer;		// shared buffer object for the producer and consumer
+		int maxBuffSize = 5;		// maximum size of the shared buffer
+		Producer producer;			// Producer object
+		Consumer consumer;			// Consumer object;
 		// the parameter to split rows of A into multiple sub-rows and
 		// the columns of B into multiple sub-columns
 		int splitSize = 3;
 		// the number of consumer threads
 		int numConsumer = 2;
 		// the maximum sleep time of the producer thread
-		// between puttin two pairs of sub-rows of A and sub-columns of B
+		// between putting two pairs of sub-rows of A and sub-columns of B
 		// into the shared queue (must wait before next subsections)
 		int maxProducerSleepTime = 5;
-		// sleep time for Consumber object between doing sub-matrix
+		// sleep time for Consumer object between doing sub-matrix
 		// multiplication
 		int maxConsumerSleepTime = 80;
 		// the first matrix to multiply
@@ -61,14 +52,14 @@ public class MatrixMultiplication {
 		long simulationStartTime;
 		// according to instructions, this should be actual system time.
 		long simulationEndTime;
-		// the average amoun of time that threads slept for.
+		// the average amount of time that threads slept for.
 		int averageThreadSleepTime;
 		// the number of producer threads created
 		int numProducerThreads;
 		// the number of consumer threads created
 		int numConsumerThreads;
 		// the number of items each producer produced and the total
-		// numberof all produced items in the simulation
+		// number of all produced items in the simulation
 		int producerItemsTotal;
 		// the number of items each consumer consumed and the total
 		// number of all consumed items in the simulation
@@ -93,19 +84,29 @@ public class MatrixMultiplication {
 		}
 
 		matrixA = generateMatrix(m, n);
-		System.out.println("A");
+		System.out.println("Matrix A:");
 		outputMatrix(matrixA);
 		matrixB = generateMatrix(n, p);
-		System.out.println("B");
+		System.out.println("Matrix B:");
 		outputMatrix(matrixB);
-		sharedB = new SharedBuffer(maxBuffSize);
-		producer = new Producer(sharedB, m, n, p);
-		consumer = new Consumer(sharedB);
 		int[][] sequentialSolution = calculateMatrixMultiplication(matrixA, matrixB);
+		System.out.println("Sequential Solution:");
 		outputMatrix(sequentialSolution);
-
+		
+		
+		// Start running the SharedBuffer...
+		buffer = new SharedBuffer(maxBuffSize);
+		producer = new Producer(buffer, m, n, p, splitSize);
+		consumer = new Consumer(buffer);
+		
+		Thread t1 = new Thread(producer);
+		Thread t2 = new Thread(consumer);
+		t1.start();
+		t2.start();
+		
 	}
-
+	
+	
 	// methods
 	public static String[] loadConfigurationFile() throws IOException {
 		BufferedReader br;
@@ -113,9 +114,9 @@ public class MatrixMultiplication {
 		String line;
 		String keyValue[];
 		String[] configurationArray = new String[8];
-
+		
 		System.out.println("Select a configuration file to run.");
-
+		
 		// open a configuration file to run.
 		// https://www.codejava.net/java-se/swing/show-simple-open-file-dialog-using-jfilechooser
 
@@ -123,7 +124,7 @@ public class MatrixMultiplication {
 		fileChooser.setCurrentDirectory(new File("."));
 		int result = fileChooser.showOpenDialog(null);
 		file = fileChooser.getSelectedFile();
-
+		
 		try {
 			br = new BufferedReader(new FileReader(file));
 			for (int i = 0; i < 8; i++) {
@@ -136,29 +137,28 @@ public class MatrixMultiplication {
 			System.out.println("Cannot open file.");
 			e.printStackTrace();
 		}
-
+		
 		return configurationArray;
 	}
-
+	
 	// Code modified from this tutorial: https://www.youtube.com/watch?v=MZenB6qYqc0
 	public static int[][] generateMatrix(int m, int n) {
 		int[][] result = new int[m][n];
-
+		
 		for (int row = 0; row < m; row++) {
 			for (int column = 0; column < n; column++) {
 				result[row][column] += Math.floor(Math.random() * 10);
 			}
 		}
 		return result;
-
 	}
-
+	
 	// from Allie's producer class
 	private static void outputMatrix(int[][] m) {
-		String output = "Result: [";
+		String output = "  [";
 		for (int row = 0; row < m.length; row++) {
 			if (row != 0) {
-				output += String.format("%9s", "[");
+				output += String.format("%3s", "[");
 			}
 			for (int column = 0; column < m[0].length; column++) {
 				output += " " + m[row][column] + " ";
@@ -170,9 +170,8 @@ public class MatrixMultiplication {
 
 	// Again, Allie's solution from Consumer class.
 	public static int[][] calculateMatrixMultiplication(int[][] mA, int[][] mB) {
-
 		int[][] result = new int[mA.length][mB[0].length];
-
+		
 		// Multiplication logic
 		for (int row = 0; row < mA.length; row++) {
 			for (int column = 0; column < mB[0].length; column++) {
@@ -183,13 +182,13 @@ public class MatrixMultiplication {
 		}
 		return result;
 	}
-
+	
 	public void incrementFullBufferCount() {
-
+		
 	}
-
+	
 	public void incrementEmptyBufferCount() {
-
+		
 	}
 
 }
