@@ -90,7 +90,7 @@ public class Producer implements Runnable {
 		int numOfColumns = subM[0].length;
 		for (int i = 0; i < numOfRows; i++) {
 			for (int j = 0; j < numOfColumns; j++) {
-				subM[i][j] = matrix[i+rowIndex][j+columnIndex];
+				subM[i][j] = matrix[i+(rowIndex*this.splitSize)][j+(columnIndex*this.splitSize)];
 			}
 		}
 	}

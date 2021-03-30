@@ -25,7 +25,7 @@ public class Consumer implements Runnable {
 		this.buffer = buffer;
 		this.producer = producer;
 		this.id = 1;
-		this.sleepTime = 1000;
+		this.sleepTime = 80;
 	}
 	
 	@Override
