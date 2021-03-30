@@ -1,3 +1,5 @@
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -17,46 +19,99 @@ public class Producer implements Runnable {
 	private int id;
 	private int[][] matrixA;
 	private int[][] matrixB;
+	private int[][] matrixC;
+	private int splitSize;
+	private int maxProducerSleeptime;
+	private int producedWorkItemsCount;
+	private int totalSleepTime;
 	private int m;		// rows in Matrix A
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
 	
 	// Constructor
-	public Producer(SharedBuffer buffer, int m, int n, int p) {
+	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB,
+								int splitSize, int maxProducerSleeptime) {
 		this.buffer = buffer;
-		this.id = 1;
-		this.m = m;
-		this.n = n;
-		this.p = p;
-		this.matrixA = new int[this.m][this.n];
-		this.matrixB = new int[this.n][this.p];
+		this.matrixA = matrixA;
+		this.matrixB = matrixB;
+		this.splitSize = splitSize;
+		this.maxProducerSleeptime = maxProducerSleeptime;
+		run();
 	}
-	
-	
-	// Getters for Matrix A and Matrix B (just for testing)
-	public int[][] getMatrixA() {
-		return this.matrixA;
-	}
-	public int[][] getMatrixB() {
-		return this.matrixB;
-	}
-	
+
 	
 	@Override
 	public void run() {
 		
-		// Populate matrices.
-		populateMatrix(this.matrixA);	// Note: For testing. Will probably have to call populateMatrix() in the 
-		populateMatrix(this.matrixB);	// for loop below when we get the SharedBuffer working.
 		
-		System.out.println(this);		// Check that matrices have populated correctly.
+		//https://stackoverflow.com/questions/5463781/java-how-to-split-a-2d-array-into-two-2d-arrays
+		int[][] array = new int[][] { {1, 2, 3}, 
+										{4, 5, 6}, 
+										{7, 8 , 9}, 
+										{10, 11, 12} };
 		
-		// Put matrices in SharedBuffer
-		for (int i = 0; i < this.buffer.getMaxBuffSize(); i++) {
-			// this.buffer.put();		// Not correct code, but this is how we will load the SharedBuffer.
+		int size = 4;								
+		int arrayLength = array.length;
+		int chunks = arrayLength/size;
+		int remainder = arrayLength % size;
+		int pointer = 0;
+		
+		for (int i = 0; i < chunks; i++) {
+			if (remainder == 0) {
+				for (int j = 0; j < size; j++) {
+					System.out.print(" " + array[pointer]);
+					pointer++;
+				}
+			} else {
+				if (i == chunks - 1) {
+					for (int j = 0; j < size + remainder; j++) {
+						System.out.print(" " + array[pointer]);
+						pointer++;
+					}
+				} else {
+					for (int j = 0; j < size; j++) {
+						System.out.print(" " + array[pointer]);
+						pointer++;
+					}
+				}
+			}
+			System.out.println("\n");
 		}
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
+	
+	
+	
+	
+	
+	
+	// from Allie's producer class
+		private static void outputMatrix(int[][] m) {
+			String output = "Result: [";
+			for (int row = 0; row < m.length; row++) {
+				if (row != 0) {
+					output += String.format("%9s", "[");
+				}
+				for (int column = 0; column < m[0].length; column++) {
+					output += " " + m[row][column] + " ";
+				}
+				output += "]\n";
+			}
+			System.out.println(output);
+		}
+	
 	
 	private void populateMatrix(int[][] matrix) {
 		int numOfRows = matrix.length;

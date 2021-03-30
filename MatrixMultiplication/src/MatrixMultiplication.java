@@ -21,12 +21,13 @@ public class MatrixMultiplication {
 	public static void main(String[] args) throws IOException {
 		Scanner console = new Scanner(System.in);
 
+		//UPDATE THESE BEFORE TURNING IN - SEE DEFAULTS IN INSTRUCTIONS!!
 		// number of rows in matrixA
-		int m = 10;
+		int m = 3;
 		// number of columns in matrixA (also number of rows in matrixB
-		int n = 10;
+		int n = 2;
 		// number of columns in matrixB
-		int p = 10;
+		int p = 3;
 		// shared buffer object for the producer and consumer
 		SharedBuffer sharedB;
 		// maximum size of the shared buffer
@@ -99,8 +100,12 @@ public class MatrixMultiplication {
 		System.out.println("B");
 		outputMatrix(matrixB);
 		sharedB = new SharedBuffer(maxBuffSize);
-		producer = new Producer(sharedB, m, n, p);
-		consumer = new Consumer(sharedB);
+		producer = new Producer(sharedB, matrixA, matrixB,
+				splitSize, maxProducerSleepTime);
+		
+		
+		
+		
 		int[][] sequentialSolution = calculateMatrixMultiplication(matrixA, matrixB);
 		outputMatrix(sequentialSolution);
 
