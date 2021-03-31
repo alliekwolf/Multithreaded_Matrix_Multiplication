@@ -54,17 +54,35 @@ public class Producer implements Runnable {
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
 		// Put matrices in SharedBuffer
-		for (int i = 0; i < this.m; i++) {
-			int numOfRows = this.splitSize;		// may need to rename later...
-			int numOfColumns = this.n;
+		for (int i = 0; i <= (this.m / this.splitSize); i++) {
 			
-			int[][] subA = new int[numOfRows][numOfColumns];
-			int[][] subB = new int[numOfColumns][numOfRows];
+			int remainderA = (this.m % this.splitSize);
+			int row = (i * this.splitSize);
+			int littleM;
 			
-			populateSubMatrix(subA, this.matrixA, i, 0);
+			if ((this.m - row) > remainderA) {
+				littleM = this.splitSize;
+			} else {
+				littleM = remainderA;
+			}
 			
-			for (int j = 0; j < this.p; j++) {
-				populateSubMatrix(subB, this.matrixB, 0, j);
+			int[][] subA = new int[littleM][this.n];
+			populateSubMatrix(subA, this.matrixA, row, 0);
+			
+			for (int j = 0; j <= (this.p / this.splitSize); j++) {
+				
+				int remainderB = (this.p % this.splitSize);
+				int column = (j * this.splitSize);
+				int littleP;
+				
+				if ((this.n - column) > remainderB) {
+					littleP = this.splitSize;
+				} else {
+					littleP = remainderB;
+				}
+				
+				int[][] subB = new int[this.n][littleP];
+				populateSubMatrix(subB, this.matrixB, 0, column);
 				
 				WorkItem workItem = new WorkItem(subA, subB);
 				this.buffer.put(workItem);
@@ -90,7 +108,7 @@ public class Producer implements Runnable {
 		int numOfColumns = subM[0].length;
 		for (int i = 0; i < numOfRows; i++) {
 			for (int j = 0; j < numOfColumns; j++) {
-				subM[i][j] = matrix[i+(rowIndex*this.splitSize)][j+(columnIndex*this.splitSize)];
+				subM[i][j] = matrix[i+rowIndex][j+columnIndex];
 			}
 		}
 	}
