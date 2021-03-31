@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 /**
  * WorkItem class to hold subrows of matrix A and subcolumns of
@@ -107,5 +108,13 @@ public class WorkItem {
 		}
 		return output; 
 	}
+
+	@Override
+	public String toString() {
+		return "WorkItem [subA=" + Arrays.deepToString(subA) + "\nsubB=" + Arrays.deepToString(subB) + "\nsubC="
+				+ Arrays.deepToString(subC) + "\nlowA=" + lowA + "\nhighA=" + highA + "\nlowB=" + lowB + "\nhighB=" + highB
+				+ "\ndone=" + done + "]";
+	}
+	
 	
 }

@@ -12,12 +12,15 @@ public class Consumer implements Runnable {
 	private Producer producer;		// FOR TESTING ONLY. ALL REFERENCES TO 'PRODUCER' WILL EVENTUALLY REFERENCE 'BUFFER'. DELETE LATER.
 	private int id;
 	private int sleepTime;
+	private boolean stop;
+	
 	
 	// Constructor
 	public Consumer(SharedBuffer buffer) {
 		this.buffer = buffer;
 		this.id = 1;
 		this.sleepTime = 80;
+		this.stop = false;
 	}
 	
 	// THIS CONSTRUCTOR IS USED JUST FOR TESTING. DELETE LATER.
@@ -31,15 +34,21 @@ public class Consumer implements Runnable {
 	@Override
 	public void run() {
 		
-		try {
-			Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		while (this.stop == false) {
+			this.calculateMatrixMultiplication();
+			try {
+				Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
-		this.calculateMatrixMultiplication();
-		
 	}
+	
+	public void stopThread() {
+		this.stop = true;
+	}
+	
 	
 	// Code edited from this tutorial:  https://www.youtube.com/watch?v=MZenB6qYqc0
 	public void calculateMatrixMultiplication() {
@@ -58,6 +67,8 @@ public class Consumer implements Runnable {
 			}
 		}
 		workItem.setSubC(result);
+		workItem.setDone();
+		this.buffer.put(workItem);
 		
 		this.outputMatrixMultiplication(result);		// Print result of multiplication.
 	}

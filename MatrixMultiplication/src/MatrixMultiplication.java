@@ -96,7 +96,7 @@ public class MatrixMultiplication {
 		
 		// Start running the SharedBuffer...
 		buffer = new SharedBuffer(maxBuffSize);
-		producer = new Producer(buffer, m, n, p, splitSize);
+		producer = new Producer(buffer, matrixA, matrixB, m, n, p, splitSize);
 		consumer = new Consumer(buffer);
 		
 		Thread t1 = new Thread(producer);
