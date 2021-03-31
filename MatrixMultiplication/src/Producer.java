@@ -53,45 +53,47 @@ public class Producer implements Runnable {
 		
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
-		// Put matrices in SharedBuffer
+		// Split matrices into sub-matrices, starting with the first sub-matrix (subA) created from matrixA.
 		for (int i = 0; i <= (this.m / this.splitSize); i++) {
 			
-			int remainderA = (this.m % this.splitSize);
-			int row = (i * this.splitSize);
-			int littleM;
+			int remainderA = (this.m % this.splitSize);		// remainder rows in matrixA
+			int row = (i * this.splitSize);					// row index of matrixA = i * split size
+			int littleM;									// number of rows that will be in subA
 			
-			if ((this.m - row) > remainderA) {
-				littleM = this.splitSize;
-			} else {
-				littleM = remainderA;
+			if ((this.m - row) > remainderA) {			// If there are more rows left than remainderA...
+				littleM = this.splitSize;				// ...number of rows in subA = split size
+			} else {									// Else, if we have reached the remainderA...
+				littleM = remainderA;					// ...number of rows = remainderA
 			}
 			
-			int[][] subA = new int[littleM][this.n];
-			populateSubMatrix(subA, this.matrixA, row, 0);
+			int[][] subA = new int[littleM][this.n];		// Declare size of subA.
+			populateSubMatrix(subA, this.matrixA, row, 0);	// Populate subA.
 			
+			// Next, create a second sub-matrix (subB) from matrixB. 
 			for (int j = 0; j <= (this.p / this.splitSize); j++) {
 				
-				int remainderB = (this.p % this.splitSize);
-				int column = (j * this.splitSize);
-				int littleP;
+				int remainderB = (this.p % this.splitSize);		// remainder columns in matrixB
+				int column = (j * this.splitSize);				// column index of matrixB = j * split size
+				int littleP;									// number of columns that will be in subB
 				
-				if ((this.n - column) > remainderB) {
-					littleP = this.splitSize;
-				} else {
-					littleP = remainderB;
+				if ((this.n - column) > remainderB) {		// If there are more columns left than remainderB...
+					littleP = this.splitSize;				// ...number of columns in subB = split size
+				} else {									// Else, if we have reached the remainderB...
+					littleP = remainderB;					// ...number of columns = remainderB
 				}
 				
-				int[][] subB = new int[this.n][littleP];
-				populateSubMatrix(subB, this.matrixB, 0, column);
+				int[][] subB = new int[this.n][littleP];			// Declare size of subB.
+				populateSubMatrix(subB, this.matrixB, 0, column);	// Populate subB.
 				
-				WorkItem workItem = new WorkItem(subA, subB);
-				this.buffer.put(workItem);
+				WorkItem workItem = new WorkItem(subA, subB);		// Create new WorkItem object from sub-matrices.
+				this.buffer.put(workItem);							// Put workItem into Shared Buffer.
 				
 				System.out.println(workItem.printSubMatrices());
 			}
 		}
 		
 	}
+	
 	
 	private void populateMatrix(int[][] matrix) {
 		int numOfRows = matrix.length;
@@ -103,12 +105,23 @@ public class Producer implements Runnable {
 		}
 	}
 	
-	private void populateSubMatrix(int[][] subM, int[][] matrix, int rowIndex, int columnIndex) {
-		int numOfRows = subM.length;
-		int numOfColumns = subM[0].length;
+	/**
+	 * This method populates a sub-matrix created from a larger matrix. The user passes 
+	 * a parent matrix parameter, and both a row and a column index from which the method 
+	 * will begin copying values into the new sub-matrix. A sub-matrix (subMatrix) parameter 
+	 * of a declared size must be passed.
+	 * 
+	 * @param subM - int[][] - Sub-matrix to be populated.
+	 * @param matrix - int[][] - Parent matrix from which the sub-matrix will receive its values.
+	 * @param rowIndex - int - The starting row index of the parent matrix.
+	 * @param columnIndex - int - The starting column index of the parent index.
+	 */
+	private void populateSubMatrix(int[][] subMatrix, int[][] matrix, int rowIndex, int columnIndex) {
+		int numOfRows = subMatrix.length;
+		int numOfColumns = subMatrix[0].length;
 		for (int i = 0; i < numOfRows; i++) {
 			for (int j = 0; j < numOfColumns; j++) {
-				subM[i][j] = matrix[i+rowIndex][j+columnIndex];
+				subMatrix[i][j] = matrix[i+rowIndex][j+columnIndex];
 			}
 		}
 	}
