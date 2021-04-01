@@ -102,11 +102,13 @@ public class Producer implements Runnable {
 				WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);	// Create new WorkItem object from sub-matrices.
 				this.buffer.put(workItem);							// Put workItem into Shared Buffer.
 				
-				System.out.println("\n****\n" + workItem + "\n****\n");
+				//System.out.println("\n****\n" + workItem + "\n****\n");
 				
 				System.out.println(workItem.printSubMatrices());
 			}
+			
 		}
+
 		
 	}
 	

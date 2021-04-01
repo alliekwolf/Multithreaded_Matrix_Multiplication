@@ -38,6 +38,8 @@ public class MatrixMultiplication {
 		// sleep time for Consumer object between doing sub-matrix
 		// multiplication
 		int maxConsumerSleepTime = 80;
+		// the maximum thread sleep time
+		int maxThreadSleepTime = 0;
 		// the first matrix to multiply
 		int[][] matrixA;
 		// the second matrix to multiply
@@ -47,7 +49,7 @@ public class MatrixMultiplication {
 		// the current moment in simulation time
 		// need to clarify, is this turn based or
 		// actual system time.
-		long simulationCurrentTime;
+		long simulationTotalTime = 0;
 		// according to the instructions, this should be actual system time.
 		long simulationStartTime;
 		// according to instructions, this should be actual system time.
@@ -55,19 +57,19 @@ public class MatrixMultiplication {
 		// the average amount of time that threads slept for.
 		int averageThreadSleepTime;
 		// the number of producer threads created
-		int numProducerThreads;
+		int numProducerThreads = 0;
 		// the number of consumer threads created
-		int numConsumerThreads;
+		int numConsumerThreads = 0;
 		// the number of items each producer produced and the total
 		// number of all produced items in the simulation
-		int producerItemsTotal;
+		int producerItemsTotal = 0;
 		// the number of items each consumer consumed and the total
 		// number of all consumed items in the simulation
 		int consumerItemsTotal;
 		// number of times the buffer was full...
-		int fullBufferCount;
+		int fullBufferCount = 0;
 		// number of times the buffer was empty...
-		int emptyBufferCount;
+		int emptyBufferCount = 0;
 
 		System.out.println("Would you like to load and configuration file, Y or N");
 		String input = console.nextLine();
@@ -100,10 +102,29 @@ public class MatrixMultiplication {
 		consumer = new Consumer(buffer);
 		
 		Thread t1 = new Thread(producer);
+		numProducerThreads++;
+		
 		Thread t2 = new Thread(consumer);
+		numConsumerThreads++;
+		
 		t1.start();
 		t2.start();
 		
+		//output metrics
+		System.out.println("PRODUCER/CONSUMER SIMULATION RESULT");
+		System.out.println("Simulation Time:	\t\t\t\t" + simulationTotalTime + "ms");
+		System.out.println("Maximum Thread SleepTime:	\t\t\t" + maxThreadSleepTime + "ms");
+		System.out.println("Number of Producer Threads:	\t\t\t" + numProducerThreads);
+		System.out.println("Number of Consumer Threads:	\t\t\t" + numConsumerThreads);
+		System.out.println("Size of Buffer:	\t\t\t\t\t" + maxBuffSize);
+		System.out.println("Total Number of Items Produced:	\t\t\t" + producerItemsTotal);
+		System.out.println("\tThread " + "0" + ":" +	"\t\t\t\t\t" + "0");
+		System.out.println("Total Number of Items Consumed:	\t\t\t" + producerItemsTotal);
+		System.out.println("\tThread " + "0" + ":" + "\t\t\t\t\t" + "0");
+		System.out.println("Number of Times Buffer was Full:	\t\t" + fullBufferCount);
+		System.out.println("Number of Times Buffer was Empty:	\t\t" + emptyBufferCount);
+		System.out.println("\n\n");
+	
 	}
 	
 	
