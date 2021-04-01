@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -22,20 +23,22 @@ public class Producer implements Runnable {
 	private int p;		// columns in Matrix B
 	private int splitSize;
 	private int itemCount;
+	private ArrayList<WorkItem> results;
 	private boolean stop;
 	
 	// Constructor
-	public Producer(SharedBuffer buffer, int m, int n, int p, int splitSize) {
-		this.buffer = buffer;
-		this.id = 1;
-		this.m = m;
-		this.n = n;
-		this.p = p;
-		this.matrixA = new int[this.m][this.n];
-		this.matrixB = new int[this.n][this.p];
-		this.splitSize = splitSize;
-		this.stop = false;
-	}
+//	public Producer(SharedBuffer buffer, int m, int n, int p, int splitSize) {
+//		this.buffer = buffer;
+//		this.id = 1;
+//		this.m = m;
+//		this.n = n;
+//		this.p = p;
+//		this.matrixA = new int[this.m][this.n];
+//		this.matrixB = new int[this.n][this.p];
+//		this.splitSize = splitSize;
+//		this.results = new ArrayList<WorkItem>();
+//		this.stop = false;
+//	}
 	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
 		this.buffer = buffer;
 		this.id = 1;
@@ -45,6 +48,7 @@ public class Producer implements Runnable {
 		this.matrixA = matrixA;
 		this.matrixB = matrixB;
 		this.splitSize = splitSize;
+		this.results = new ArrayList<WorkItem>();
 		this.stop = false;
 	}
 	
@@ -97,9 +101,16 @@ public class Producer implements Runnable {
 					// Create new WorkItem object from sub-matrices, then put in SharedBuffer.
 					WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);
 					this.buffer.put(workItem);
+					this.results.add(workItem);
 					
 					System.out.println(workItem.subAToString());
 					System.out.println(workItem.subBToString());
+					
+					if (highA == (subA.length - 1) && highB == (subB[0].length - 1)) {
+						this.buffer.setDone();
+						this.stop();
+						
+					}
 					
 				} // End of inner for loop.
 			} // End of outer for loop.

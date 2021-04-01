@@ -110,6 +110,14 @@ public class MatrixMultiplication {
 		t1.start();
 		t2.start();
 		
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		
 		//output metrics
 		System.out.println("PRODUCER/CONSUMER SIMULATION RESULT");
 		System.out.println("Simulation Time:	\t\t\t\t" + simulationTotalTime + "ms");
