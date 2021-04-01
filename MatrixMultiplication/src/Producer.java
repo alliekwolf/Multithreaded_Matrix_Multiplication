@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -18,6 +19,7 @@ public class Producer implements Runnable {
 	private int id;
 	private int[][] matrixA;
 	private int[][] matrixB;
+	private int[][] matrixC;
 	private int m;		// rows in Matrix A
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
@@ -47,6 +49,7 @@ public class Producer implements Runnable {
 		this.p = p;
 		this.matrixA = matrixA;
 		this.matrixB = matrixB;
+		this.matrixC = new int[this.m][this.p];
 		this.splitSize = splitSize;
 		this.results = new ArrayList<WorkItem>();
 		this.stop = false;
@@ -103,11 +106,37 @@ public class Producer implements Runnable {
 					this.buffer.put(workItem);
 					this.results.add(workItem);
 					
+					
+					
 					System.out.println(workItem.subAToString());
 					System.out.println(workItem.subBToString());
 					
+					
+					
+					
 					if (highA == (subA.length - 1) && highB == (subB[0].length - 1)) {
 						this.buffer.setDone();
+						
+//						while(this.buffer.isDone()) {
+//							for(int x = 0; x < results.size(); x++) {
+//								if (results.get(x).getDone() == true) {
+//									populateMatrixC(results.get(x));
+//								}
+//							}
+//							
+//						}
+						
+						while(this.results.size() > 0) {
+							for(int x = 0; x < results.size(); x++) {
+								if (results.get(x).getDone() == true) {
+									populateMatrixC(results.get(x));
+									results.remove(x);
+								}
+							}
+							
+						}
+						
+						
 						this.stop();
 						
 					}
@@ -188,6 +217,27 @@ public class Producer implements Runnable {
 			output += "]\n";
 		}
 		return output;
+	}
+	
+	public void populateMatrixC(WorkItem workItem) {
+		int indexA = 0;
+		
+		for (int row = workItem.getLowA(); row <= workItem.getHighA(); row++) {
+			int indexB = 0;
+			for (int column = workItem.getLowB(); column <= workItem.getHighB(); column++) {
+				matrixC[row][column] += workItem.getSubC()[indexA][indexB];
+				indexB++;
+			}
+			indexA++;
+
+		}
+		
+	}
+
+
+	public int[][] getMatrixC() {
+		// TODO Auto-generated method stub
+		return this.matrixC;
 	}
 	
 }

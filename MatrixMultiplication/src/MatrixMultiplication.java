@@ -117,7 +117,7 @@ public class MatrixMultiplication {
 			e.printStackTrace();
 		}
 		
-		
+		outputMatrix(producer.getMatrixC());
 		//output metrics
 		System.out.println("PRODUCER/CONSUMER SIMULATION RESULT");
 		System.out.println("Simulation Time:	\t\t\t\t" + simulationTotalTime + "ms");

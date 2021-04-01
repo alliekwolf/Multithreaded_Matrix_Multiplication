@@ -21,6 +21,9 @@ public class WorkItem {
 	protected int lowB, highB;	//low and high row indexes of the sub-rows copied from matrix B,
 	protected boolean done;		//boolean indicating whether or not the work has completed on this item.
 	
+	//temp for testing
+	protected int id;
+	
 	// Constructor
 	/**
 	 * Constructor method for WorkItem
@@ -149,5 +152,32 @@ public class WorkItem {
 		return output;
 	}
 	
+	//temp for testing
+	public void setId(int id) {
+		this.id = id;
+	}
 	
+	public int getId() {
+		return this.id;
+	}
+
+	public int getLowA() {
+		// TODO Auto-generated method stub
+		return this.lowA;
+	}
+
+	public int getHighA() {
+		// TODO Auto-generated method stub
+		return this.highA;
+	}
+	
+	public int getLowB() {
+		// TODO Auto-generated method stub
+		return this.lowB;
+	}
+
+	public int getHighB() {
+		// TODO Auto-generated method stub
+		return this.highB;
+	}
 }

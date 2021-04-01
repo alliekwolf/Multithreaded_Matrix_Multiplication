@@ -66,6 +66,7 @@ public class SharedBuffer {
 				wait();
 			} catch (InterruptedException e) {}
 		}
+		workItem.setId(itemCount);
 		this.buffArray[this.in] = workItem;
 		this.in = (this.in + 1) % this.maxBuffSize;
 		this.count++;
