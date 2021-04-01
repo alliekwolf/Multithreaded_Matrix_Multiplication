@@ -14,6 +14,7 @@ public class SharedBuffer {
 	private int out;
 	private int maxBuffSize;
 	private int itemCount;
+	private boolean done;
 	
 	// Constructor
 	public SharedBuffer(int maxBuffSize) {
@@ -23,12 +24,18 @@ public class SharedBuffer {
 		this.maxBuffSize = maxBuffSize;
 		this.buffArray = new WorkItem[this.maxBuffSize];
 		this.itemCount = 0;
+		this.done = false;
 	}
 	
-	// maxBuffSize Getter
+	// Getters and Setters
 	public int getMaxBuffSize() {
 		return maxBuffSize;
 	}
+	
+	public int getCount() {
+		return this.count;
+	}
+	
 	
 	// Synchronized methods
 	public synchronized WorkItem get() {
@@ -46,7 +53,7 @@ public class SharedBuffer {
 		
 		notifyAll();
 		
-		System.out.println("* Consumer gets row " + workItem.lowA + "-" + workItem.highA + " and column " + 
+		System.out.println("\n* Consumer gets row " + workItem.lowA + "-" + workItem.highA + " and column " + 
 				workItem.lowB + "-" + workItem.highB + " from the shared buffer. *");
 		System.out.println("  Consumer finishes calculating...");
 		
@@ -66,9 +73,21 @@ public class SharedBuffer {
 		
 		notifyAll();
 		
-		System.out.println("* Work Item No. " + this.itemCount + " *");
 		System.out.println("* Producer puts row " + workItem.lowA + "-" + workItem.highA + " and column " + 
 							workItem.lowB + "-" + workItem.highB + " into the shared buffer. *");
+		System.out.println("  Work Item No. " + this.itemCount);
+	}
+	
+	// Method to switch 'done' bit to true, telling Producer/Consumer threads to STOP.
+	public void setDone() {
+		this.done = true;
+	}
+	public boolean isDone() {
+		if(this.done == true) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 }

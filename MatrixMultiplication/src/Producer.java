@@ -21,6 +21,8 @@ public class Producer implements Runnable {
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
 	private int splitSize;
+	private int itemCount;
+	private boolean stop;
 	
 	// Constructor
 	public Producer(SharedBuffer buffer, int m, int n, int p, int splitSize) {
@@ -32,6 +34,7 @@ public class Producer implements Runnable {
 		this.matrixA = new int[this.m][this.n];
 		this.matrixB = new int[this.n][this.p];
 		this.splitSize = splitSize;
+		this.stop = false;
 	}
 	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
 		this.buffer = buffer;
@@ -42,86 +45,78 @@ public class Producer implements Runnable {
 		this.matrixA = matrixA;
 		this.matrixB = matrixB;
 		this.splitSize = splitSize;
-	}
-	
-	
-	// Getters for Matrix A and Matrix B (just for testing)
-	public int[][] getMatrixA() {
-		return this.matrixA;
-	}
-	public int[][] getMatrixB() {
-		return this.matrixB;
+		this.stop = false;
 	}
 	
 	
 	@Override
 	public void run() {
 		
-		// Populate matrices.
-//		populateMatrix(this.matrixA);	// Note: For testing. May need to populate these matrices from the  
-//		populateMatrix(this.matrixB);	// client program later? Will populate here for now.
-		
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
-		// Split matrices into sub-matrices, starting with the first sub-matrix (subA) created from matrixA.
-		for (int i = 0; i <= (this.m / this.splitSize); i++) {
+		// QUESTION:  WHERE DO WE FLIP THE 'STOP' BIT TO TRUE?
+		
+		while (!this.stop) {
 			
-			int remainderA = (this.m % this.splitSize);		// remainder rows in matrixA
-			int row = (i * this.splitSize);					// row index of matrixA = i * split size
-			int littleM;									// number of rows that will be in subA
-			
-			if ((this.m - row) > remainderA) {			// If there are more rows left than remainderA...
-				littleM = this.splitSize;				// ...number of rows in subA = split size
-			} else {									// Else, if we have reached the remainderA...
-				littleM = remainderA;					// ...number of rows = remainderA
-			}
-			
-			int[][] subA = new int[littleM][this.n];		// Declare size of subA.
-			populateSubMatrix(subA, this.matrixA, row, 0);	// Populate subA.
-			
-			// Next, create a second sub-matrix (subB) from matrixB. 
-			for (int j = 0; j <= (this.p / this.splitSize); j++) {
+			// Split matrices into sub-matrices, starting with the first sub-matrix (subA) created from matrixA.
+			for (int i = 0; i <= (this.m / this.splitSize); i++) {
 				
-				int remainderB = (this.p % this.splitSize);		// remainder columns in matrixB
-				int column = (j * this.splitSize);				// column index of matrixB = j * split size
-				int littleP;									// number of columns that will be in subB
+				int remainderA = (this.m % this.splitSize);		// remainder rows in matrixA
+				int row = (i * this.splitSize);					// row index of matrixA = i * split size
+				int littleM;									// number of rows that will be in subA
 				
-				if ((this.n - column) > remainderB) {		// If there are more columns left than remainderB...
-					littleP = this.splitSize;				// ...number of columns in subB = split size
-				} else {									// Else, if we have reached the remainderB...
-					littleP = remainderB;					// ...number of columns = remainderB
+				if ((this.m - row) > remainderA) {			// If there are more rows left than remainderA...
+					littleM = this.splitSize;				// ...number of rows in subA = split size
+				} else {									// Else, if we have reached the remainderA...
+					littleM = remainderA;					// ...number of rows = remainderA
 				}
 				
-				int[][] subB = new int[this.n][littleP];			// Declare size of subB.
-				populateSubMatrix(subB, this.matrixB, 0, column);	// Populate subB.
+				int[][] subA = new int[littleM][this.n];		// Declare size of subA.
+				populateSubMatrix(subA, this.matrixA, row, 0);	// Populate subA.
 				
-				// Set the WorkItem's column and row information (low's and high's)
-				int highA = row + (littleM - 1);
-				int highB = column + (littleP - 1);
-				
-				WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);	// Create new WorkItem object from sub-matrices.
-				this.buffer.put(workItem);							// Put workItem into Shared Buffer.
-				
-				//System.out.println("\n****\n" + workItem + "\n****\n");
-				
-				System.out.println(workItem.printSubMatrices());
-			}
+				// Next, create a second sub-matrix (subB) from matrixB. 
+				for (int j = 0; j <= (this.p / this.splitSize); j++) {
+					
+					int remainderB = (this.p % this.splitSize);		// remainder columns in matrixB
+					int column = (j * this.splitSize);				// column index of matrixB = j * split size
+					int littleP;									// number of columns that will be in subB
+					
+					if ((this.n - column) > remainderB) {		// If there are more columns left than remainderB...
+						littleP = this.splitSize;				// ...number of columns in subB = split size
+					} else {									// Else, if we have reached the remainderB...
+						littleP = remainderB;					// ...number of columns = remainderB
+					}
+					
+					int[][] subB = new int[this.n][littleP];			// Declare size of subB.
+					populateSubMatrix(subB, this.matrixB, 0, column);	// Populate subB.
+					
+					// Set the WorkItem's column and row information (low's and high's)
+					int highA = row + (littleM - 1);
+					int highB = column + (littleP - 1);
+					
+					// Create new WorkItem object from sub-matrices, then put in SharedBuffer.
+					WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);
+					this.buffer.put(workItem);
+					
+					System.out.println(workItem.subAToString());
+					System.out.println(workItem.subBToString());
+					
+				} // End of inner for loop.
+			} // End of outer for loop.
 			
-		}
-
-		
+			
+		} // End of while loop.
 	}
 	
 	
-	private void populateMatrix(int[][] matrix) {
-		int numOfRows = matrix.length;
-		int numOfColumns = matrix[0].length;
-		for (int i = 0; i < numOfRows; i++) {
-			for (int j = 0; j < numOfColumns; j++) {
-				matrix[i][j] = rand.nextInt(RANGE);
-			}
-		}
+	/**
+	 * This method stops the Producer thread by setting the value of the 
+	 * 'stop' boolean to 'true' to break the while loop in the run method. 
+	 */
+	public void stop() {
+		this.stop = true;
 	}
+	
 	
 	/**
 	 * This method populates a sub-matrix created from a larger matrix. The user passes 
@@ -132,7 +127,7 @@ public class Producer implements Runnable {
 	 * @param subM - int[][] - Sub-matrix to be populated.
 	 * @param matrix - int[][] - Parent matrix from which the sub-matrix will receive its values.
 	 * @param rowIndex - int - The starting row index of the parent matrix.
-	 * @param columnIndex - int - The starting column index of the parent index.
+	 * @param columnIndex - int - The starting column index of the parent matrix.
 	 */
 	private void populateSubMatrix(int[][] subMatrix, int[][] matrix, int rowIndex, int columnIndex) {
 		int numOfRows = subMatrix.length;
@@ -143,6 +138,19 @@ public class Producer implements Runnable {
 			}
 		}
 	}
+	
+	
+	// MAY NOT NEED THIS METHOD FOR POPULATING MATRICES. DELETE?
+	private void populateMatrix(int[][] matrix) {
+		int numOfRows = matrix.length;
+		int numOfColumns = matrix[0].length;
+		for (int i = 0; i < numOfRows; i++) {
+			for (int j = 0; j < numOfColumns; j++) {
+				matrix[i][j] = rand.nextInt(RANGE);
+			}
+		}
+	}
+	
 	
 	@Override
 	public String toString() {

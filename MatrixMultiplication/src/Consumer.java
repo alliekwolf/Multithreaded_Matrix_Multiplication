@@ -9,7 +9,6 @@ public class Consumer implements Runnable {
 	
 	// Data members
 	private SharedBuffer buffer;
-	private Producer producer;		// FOR TESTING ONLY. ALL REFERENCES TO 'PRODUCER' WILL EVENTUALLY REFERENCE 'BUFFER'. DELETE LATER.
 	private int id;
 	private int sleepTime;
 	private boolean stop;
@@ -23,29 +22,24 @@ public class Consumer implements Runnable {
 		this.stop = false;
 	}
 	
-	// THIS CONSTRUCTOR IS USED JUST FOR TESTING. DELETE LATER.
-	public Consumer(SharedBuffer buffer, Producer producer) {
-		this.buffer = buffer;
-		this.producer = producer;
-		this.id = 1;
-		this.sleepTime = 80;
-	}
 	
 	@Override
 	public void run() {
 		
-		while (this.stop == false) {
+		// WHERE DO WE SET 'STOP = TRUE'?
+		
+		while (!this.stop) {
 			this.calculateMatrixMultiplication();
 			try {
 				Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		} // End of while loop
 		
 	}
 	
-	public void stopThread() {
+	public void stop() {
 		this.stop = true;
 	}
 	
@@ -68,22 +62,16 @@ public class Consumer implements Runnable {
 		}
 		workItem.setSubC(result);
 		workItem.setDone();
-		this.buffer.put(workItem);
 		
-		this.outputMatrixMultiplication(result);		// Print result of multiplication.
+		this.outputResult(workItem);		// Print result of multiplication.
+		
+		if (this.buffer.isDone() && this.buffer.getCount() == 0) {
+			this.stop();
+		}
 	}
 	
-	private void outputMatrixMultiplication(int[][] m) {
-		String output = "Result: [";
-		for (int row = 0; row < m.length; row++) {
-			if (row != 0) { 
-				output += String.format("%9s", "[");
-			}
-			for (int column = 0; column < m[0].length; column++) {
-				output += " " + m[row][column] + " ";
-			}
-			output += "]\n";
-		}
+	private void outputResult(WorkItem workItem) {
+		String output = workItem.subAToString() + "  X \n" + workItem.subBToString() + "  = \n" + workItem.subCToString();
 		System.out.println(output);
 	}
 	

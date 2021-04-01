@@ -14,12 +14,12 @@ import java.util.Arrays;
 public class WorkItem {
 	
 	// Data members
-	int[][] subA;		//two dimensional array with the sub-rows of matrix A
-	int[][] subB;		//two dimensional array with the sub-rows of matrix B
-	int[][] subC;		//matrix multiplication result of subA X subB 
-	int lowA, highA;	//low and high row indexes of the sub-rows copied from matrix A,
-	int lowB, highB;	//low and high row indexes of the sub-rows copied from matrix B,
-	boolean done;		//boolean indicating whether or not the work has completed on this item.
+	protected int[][] subA;		//two dimensional array with the sub-rows of matrix A
+	protected int[][] subB;		//two dimensional array with the sub-rows of matrix B
+	protected int[][] subC;		//matrix multiplication result of subA X subB 
+	protected int lowA, highA;	//low and high row indexes of the sub-rows copied from matrix A,
+	protected int lowB, highB;	//low and high row indexes of the sub-rows copied from matrix B,
+	protected boolean done;		//boolean indicating whether or not the work has completed on this item.
 	
 	// Constructor
 	/**
@@ -55,21 +55,22 @@ public class WorkItem {
 	}
 	
 	// Getters and Setters
+	public boolean getDone() {
+		return this.done;
+	}
+	
 	public void setDone() {
 		this.done = true;
 	}
 	
-	public boolean getDone() {
-		return this.done;
+	public int[][] getSubC() {
+		return this.subC;
 	}
 	
 	public void setSubC(int[][] subC) {
 		this.subC = subC;
 	}
 	
-	public int[][] getSubC() {
-		return this.subC;
-	}
 	
 	// Multiplication method from the Consumer class.
 	public void multiplySubMatrices() {
@@ -84,7 +85,10 @@ public class WorkItem {
 		
 	}
 	
-	public String printSubMatrices() {
+	
+	// Print and String methods
+	
+	public String subAToString() {
 		String output = "Sub A: [";
 		for (int row = 0; row < this.subA.length; row++) {
 			if (row != 0) { 
@@ -95,8 +99,11 @@ public class WorkItem {
 			}
 			output += "]\n";
 		}
-		
-		output += "Sub B: [";
+		return output; 
+	}
+	
+	public String subBToString() {
+		String output = "Sub B: [";
 		for (int row = 0; row < this.subB.length; row++) {
 			if (row != 0) { 
 				output += String.format("%8s", "[");
@@ -108,12 +115,38 @@ public class WorkItem {
 		}
 		return output; 
 	}
-
+	
+	public String subCToString() {
+		String output = "Sub C: [";
+		for (int row = 0; row < this.subC.length; row++) {
+			if (row != 0) { 
+				output += String.format("%8s", "[");
+			}
+			for (int column = 0; column < this.subC[0].length; column++) {
+				output += " " + this.subC[row][column] + " ";
+			}
+			output += "]\n";
+		}
+		return output; 
+	}
+	
+	
 	@Override
 	public String toString() {
-		return "WorkItem [subA=" + Arrays.deepToString(subA) + "\nsubB=" + Arrays.deepToString(subB) + "\nsubC="
-				+ Arrays.deepToString(subC) + "\nlowA=" + lowA + "\nhighA=" + highA + "\nlowB=" + lowB + "\nhighB=" + highB
-				+ "\ndone=" + done + "]";
+		String output = "Work Item: \n";
+		output += this.subAToString();
+		
+		output += this.subBToString();
+		
+		if (this.done == true) {
+			output += this.subCToString();
+		} else {
+			output += "Sub C: [ EMPTY ]\n";
+		}
+		
+		output += "lowA: " + lowA + "\nhighA: " + highA + "\nlowB: " + lowB + "\nhighB: " + highB + "\nDone: " + done;
+		
+		return output;
 	}
 	
 	
