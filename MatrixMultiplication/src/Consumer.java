@@ -48,8 +48,8 @@ public class Consumer implements Runnable {
 	public void calculateMatrixMultiplication() {
 		
 		WorkItem workItem = this.buffer.get();		// This is where we will actually get the matrices from the SharedBuffer.
-		int[][] mA = workItem.subA;
-		int[][] mB = workItem.subB;
+		int[][] mA = workItem.getSubA();
+		int[][] mB = workItem.getSubB();
 		int[][] result = new int[mA.length][mB[0].length];
 		
 		// Multiplication logic
@@ -61,7 +61,7 @@ public class Consumer implements Runnable {
 			}
 		}
 		workItem.setSubC(result);
-		workItem.setDone();
+		workItem.setState(State.READY);
 		
 		this.outputResult(workItem);		// Print result of multiplication.
 		

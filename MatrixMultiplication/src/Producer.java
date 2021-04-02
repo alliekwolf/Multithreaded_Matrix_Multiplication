@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -24,23 +23,10 @@ public class Producer implements Runnable {
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
 	private int splitSize;
-	private int itemCount;
 	private ArrayList<WorkItem> results;
 	private boolean stop;
 	
 	// Constructor
-//	public Producer(SharedBuffer buffer, int m, int n, int p, int splitSize) {
-//		this.buffer = buffer;
-//		this.id = 1;
-//		this.m = m;
-//		this.n = n;
-//		this.p = p;
-//		this.matrixA = new int[this.m][this.n];
-//		this.matrixB = new int[this.n][this.p];
-//		this.splitSize = splitSize;
-//		this.results = new ArrayList<WorkItem>();
-//		this.stop = false;
-//	}
 	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
 		this.buffer = buffer;
 		this.id = 1;
@@ -101,44 +87,37 @@ public class Producer implements Runnable {
 					int highA = row + (littleM - 1);
 					int highB = column + (littleP - 1);
 					
-					// Create new WorkItem object from sub-matrices, then put in SharedBuffer.
+					// Create new WorkItem object from sub-matrices, then put in results ArrayList and SharedBuffer.
 					WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);
-					this.buffer.put(workItem);
 					this.results.add(workItem);
-					
-					
+					this.buffer.put(workItem);
 					
 					System.out.println(workItem.subAToString());
 					System.out.println(workItem.subBToString());
 					
+					int count = 0;		// This is a counter to track all 'DONE' workItems in the next for loop.
 					
-					
-					
-					if (highA == (subA.length - 1) && highB == (subB[0].length - 1)) {
-						this.buffer.setDone();
-						
-//						while(this.buffer.isDone()) {
-//							for(int x = 0; x < results.size(); x++) {
-//								if (results.get(x).getDone() == true) {
-//									populateMatrixC(results.get(x));
-//								}
-//							}
-//							
-//						}
-						
-						while(this.results.size() > 0) {
-							for(int x = 0; x < results.size(); x++) {
-								if (results.get(x).getDone() == true) {
-									populateMatrixC(results.get(x));
-									results.remove(x);
-								}
-							}
-							
+					for (WorkItem item : results) {		// Loop through results ArrayList to find all 'DONE' workItems
+						if (item.isReady()) {				// If a workItem is 'READY' for calculating...
+							populateMatrixC(item);			// ...add it's subC matrix to Matrix C
+							item.setState(State.DONE);		// ...and set the workItem's state to 'DONE'.
+//							item.setDone();
+							count++;						// ...increment the count of 'DONE' workItems.
+						} else if (item.isDone()) {			// Else, if workItem is 'DONE'...
+							count++;						// ...just increment the count of 'DONE' workItems.
 						}
-						
-						
+					}
+					
+					// If we've created all necessary workItems for these matrices...
+					if (highA == (subA.length - 1) && highB == (subB[0].length - 1)) {
+						this.buffer.setState(State.DONE);		// ...set SharedBuffer state to 'DONE'.
+//						this.buffer.setDone();
+					}
+					
+					// If all workItems are 'DONE' and Matrix C has been reassembled...
+					if (count == results.size()) {
+						this.printResult();
 						this.stop();
-						
 					}
 					
 				} // End of inner for loop.
@@ -177,18 +156,35 @@ public class Producer implements Runnable {
 				subMatrix[i][j] = matrix[i+rowIndex][j+columnIndex];
 			}
 		}
+		this.printResult();
+	}
+	
+	/**
+	 * 
+	 * @param workItem
+	 */
+	public void populateMatrixC(WorkItem workItem) {
+		for (int i = 0; i <= (workItem.getHighA() - workItem.getLowA()); i++) {
+			for (int j = 0; j <= (workItem.getHighB() - workItem.getLowB()); j++) {
+				this.matrixC[i + workItem.getLowA()][j + workItem.getLowB()] = workItem.getSubC()[i][j];
+			}
+		}
+		this.printResult();
 	}
 	
 	
-	// MAY NOT NEED THIS METHOD FOR POPULATING MATRICES. DELETE?
-	private void populateMatrix(int[][] matrix) {
-		int numOfRows = matrix.length;
-		int numOfColumns = matrix[0].length;
-		for (int i = 0; i < numOfRows; i++) {
-			for (int j = 0; j < numOfColumns; j++) {
-				matrix[i][j] = rand.nextInt(RANGE);
+	public void printResult() {
+		String output = "Matrix C: [";
+		for (int row = 0; row < this.matrixC.length; row++) {
+			if (row != 0) { 
+				output += String.format("%11s", "[");
 			}
+			for (int column = 0; column < this.matrixC[0].length; column++) {
+				output += " " + this.matrixC[row][column] + " ";
+			}
+			output += "]\n";
 		}
+		System.out.println(output);
 	}
 	
 	
@@ -216,28 +212,8 @@ public class Producer implements Runnable {
 			}
 			output += "]\n";
 		}
+		
 		return output;
-	}
-	
-	public void populateMatrixC(WorkItem workItem) {
-		int indexA = 0;
-		
-		for (int row = workItem.getLowA(); row <= workItem.getHighA(); row++) {
-			int indexB = 0;
-			for (int column = workItem.getLowB(); column <= workItem.getHighB(); column++) {
-				matrixC[row][column] += workItem.getSubC()[indexA][indexB];
-				indexB++;
-			}
-			indexA++;
-
-		}
-		
-	}
-
-
-	public int[][] getMatrixC() {
-		// TODO Auto-generated method stub
-		return this.matrixC;
 	}
 	
 }

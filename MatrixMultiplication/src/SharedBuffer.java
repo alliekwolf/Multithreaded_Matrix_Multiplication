@@ -15,6 +15,7 @@ public class SharedBuffer {
 	private int maxBuffSize;
 	private int itemCount;
 	private boolean done;
+	private State state;
 	
 	// Constructor
 	public SharedBuffer(int maxBuffSize) {
@@ -53,8 +54,8 @@ public class SharedBuffer {
 		
 		notifyAll();
 		
-		System.out.println("\n* Consumer gets row " + workItem.lowA + "-" + workItem.highA + " and column " + 
-				workItem.lowB + "-" + workItem.highB + " from the shared buffer. *");
+		System.out.println("\n* Consumer gets row " + workItem.getLowA() + "-" + workItem.getHighA() + " and column " + 
+				workItem.getLowB() + "-" + workItem.getHighB() + " from the shared buffer. *");
 		System.out.println("  Consumer finishes calculating...");
 		
 		return workItem;
@@ -66,7 +67,6 @@ public class SharedBuffer {
 				wait();
 			} catch (InterruptedException e) {}
 		}
-		workItem.setId(itemCount);
 		this.buffArray[this.in] = workItem;
 		this.in = (this.in + 1) % this.maxBuffSize;
 		this.count++;
@@ -74,8 +74,8 @@ public class SharedBuffer {
 		
 		notifyAll();
 		
-		System.out.println("* Producer puts row " + workItem.lowA + "-" + workItem.highA + " and column " + 
-							workItem.lowB + "-" + workItem.highB + " into the shared buffer. *");
+		System.out.println("* Producer puts row " + workItem.getLowA() + "-" + workItem.getHighA() + " and column " + 
+							workItem.getLowB() + "-" + workItem.getHighB() + " into the shared buffer. *");
 		System.out.println("  Work Item No. " + this.itemCount);
 	}
 	
@@ -83,8 +83,11 @@ public class SharedBuffer {
 	public void setDone() {
 		this.done = true;
 	}
+	public void setState(State state) {
+		this.state = state;
+	}
 	public boolean isDone() {
-		if(this.done == true) {
+		if(/*this.done == true*/ this.state == State.DONE) {
 			return true;
 		} else {
 			return false;

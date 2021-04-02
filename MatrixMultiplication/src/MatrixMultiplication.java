@@ -16,9 +16,11 @@ import javax.swing.JFileChooser;
  */
 public class MatrixMultiplication {
 	
+	final static int RANGE = 10;
+	
 	public static void main(String[] args) throws IOException {
 		Scanner console = new Scanner(System.in);
-
+		
 		int m = 10;		// number of rows in Matrix A
 		int n = 10;		// number of columns in Matrix A, rows in Matrix B
 		int p = 10;		// number of columns in Matrix B
@@ -117,7 +119,7 @@ public class MatrixMultiplication {
 			e.printStackTrace();
 		}
 		
-		outputMatrix(producer.getMatrixC());
+		
 		//output metrics
 		System.out.println("PRODUCER/CONSUMER SIMULATION RESULT");
 		System.out.println("Simulation Time:	\t\t\t\t" + simulationTotalTime + "ms");
@@ -176,7 +178,7 @@ public class MatrixMultiplication {
 		
 		for (int row = 0; row < m; row++) {
 			for (int column = 0; column < n; column++) {
-				result[row][column] += Math.floor(Math.random() * 10);
+				result[row][column] += Math.floor(Math.random() * RANGE);
 			}
 		}
 		return result;

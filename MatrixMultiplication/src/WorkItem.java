@@ -14,15 +14,14 @@ import java.util.Arrays;
 public class WorkItem {
 	
 	// Data members
-	protected int[][] subA;		//two dimensional array with the sub-rows of matrix A
-	protected int[][] subB;		//two dimensional array with the sub-rows of matrix B
-	protected int[][] subC;		//matrix multiplication result of subA X subB 
-	protected int lowA, highA;	//low and high row indexes of the sub-rows copied from matrix A,
-	protected int lowB, highB;	//low and high row indexes of the sub-rows copied from matrix B,
-	protected boolean done;		//boolean indicating whether or not the work has completed on this item.
-	
-	//temp for testing
-	protected int id;
+	private int[][] subA;		//two dimensional array with the sub-rows of matrix A
+	private int[][] subB;		//two dimensional array with the sub-rows of matrix B
+	private int[][] subC;		//matrix multiplication result of subA X subB 
+	private int lowA, highA;	//low and high row indexes of the sub-rows copied from matrix A,
+	private int lowB, highB;	//low and high row indexes of the sub-rows copied from matrix B,
+	private boolean ready;		//boolean indicating whether or not the work has completed on this item.
+	private boolean done;
+	private State state;
 	
 	// Constructor
 	/**
@@ -45,25 +44,16 @@ public class WorkItem {
 		this.lowB = lowB;
 		this.highA = highA;
 		this.highB = highB;
-	}
-	
-	public WorkItem(int[][]subA, int[][]subB) {
-		this.subA = subA;
-		this.subB = subB;
-		this.subC = new int[this.subA[0].length][this.subB.length];
-		this.lowA = 0;
-		this.lowB = 0;
-		this.highA = 0;
-		this.highB = 0;
+		this.state = State.WAITING;
 	}
 	
 	// Getters and Setters
-	public boolean getDone() {
-		return this.done;
+	public int[][] getSubA() {
+		return this.subA;
 	}
 	
-	public void setDone() {
-		this.done = true;
+	public int[][] getSubB() {
+		return this.subB;
 	}
 	
 	public int[][] getSubC() {
@@ -72,6 +62,54 @@ public class WorkItem {
 	
 	public void setSubC(int[][] subC) {
 		this.subC = subC;
+	}
+	
+	public int getLowA() {
+		return this.lowA;
+	}
+	
+	public int getLowB() {
+		return this.lowB;
+	}
+	
+	public int getHighA() {
+		return this.highA;
+	}
+	
+	public int getHighB() {
+		return this.highB;
+	}
+	
+	public void setState(State state) {
+		this.state = state;
+	}
+	
+	public void setReady() {
+		this.ready = true;
+	}
+	
+	public void setDone() {
+		this.done = true;
+	}
+	
+	public boolean isReady() {
+		if (this.state == State.READY) {
+			return true;
+		} else {
+			return false;
+		}
+		
+//		return this.ready;
+	}
+	
+	public boolean isDone() {
+		if (this.state == State.DONE) {
+			return true;
+		} else {
+			return false;
+		}
+		
+//		return this.done;
 	}
 	
 	
@@ -85,7 +123,6 @@ public class WorkItem {
 				}
 			}
 		}
-		
 	}
 	
 	
@@ -137,14 +174,14 @@ public class WorkItem {
 	@Override
 	public String toString() {
 		String output = "Work Item: \n";
-		output += this.subAToString();
 		
+		output += this.subAToString();
 		output += this.subBToString();
 		
-		if (this.done == true) {
+		if (this.isDone()) {
 			output += this.subCToString();
 		} else {
-			output += "Sub C: [ EMPTY ]\n";
+			output += "Sub C: [ ... ]\n";
 		}
 		
 		output += "lowA: " + lowA + "\nhighA: " + highA + "\nlowB: " + lowB + "\nhighB: " + highB + "\nDone: " + done;
@@ -152,32 +189,5 @@ public class WorkItem {
 		return output;
 	}
 	
-	//temp for testing
-	public void setId(int id) {
-		this.id = id;
-	}
 	
-	public int getId() {
-		return this.id;
-	}
-
-	public int getLowA() {
-		// TODO Auto-generated method stub
-		return this.lowA;
-	}
-
-	public int getHighA() {
-		// TODO Auto-generated method stub
-		return this.highA;
-	}
-	
-	public int getLowB() {
-		// TODO Auto-generated method stub
-		return this.lowB;
-	}
-
-	public int getHighB() {
-		// TODO Auto-generated method stub
-		return this.highB;
-	}
 }
