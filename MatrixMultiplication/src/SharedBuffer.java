@@ -80,14 +80,18 @@ public class SharedBuffer {
 	}
 	
 	// Method to switch 'done' bit to true, telling Producer/Consumer threads to STOP.
-	public void setDone() {
-		this.done = true;
-	}
 	public void setState(State state) {
 		this.state = state;
 	}
+	public boolean isReady() {
+		if(this.state == State.READY) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	public boolean isDone() {
-		if(/*this.done == true*/ this.state == State.DONE) {
+		if(this.state == State.DONE) {
 			return true;
 		} else {
 			return false;

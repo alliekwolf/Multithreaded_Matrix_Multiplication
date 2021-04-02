@@ -119,6 +119,9 @@ public class MatrixMultiplication {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Sequential Solution:");
+		outputMatrix(sequentialSolution);
+		
 		
 		//output metrics
 		System.out.println("PRODUCER/CONSUMER SIMULATION RESULT");

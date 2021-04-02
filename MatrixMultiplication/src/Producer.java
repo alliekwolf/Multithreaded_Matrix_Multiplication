@@ -98,31 +98,28 @@ public class Producer implements Runnable {
 					int count = 0;		// This is a counter to track all 'DONE' workItems in the next for loop.
 					
 					for (WorkItem item : results) {		// Loop through results ArrayList to find all 'DONE' workItems
-						if (item.isReady()) {				// If a workItem is 'READY' for calculating...
+						if (item.isDone()) {				// If a workItem is 'DONE' for calculating...
+							count++;						// ...just increment the count of 'DONE' workItems.
+						} else if (item.isReady()) {		// Else, if workItem is 'READY'...
 							populateMatrixC(item);			// ...add it's subC matrix to Matrix C
 							item.setState(State.DONE);		// ...and set the workItem's state to 'DONE'.
-//							item.setDone();
 							count++;						// ...increment the count of 'DONE' workItems.
-						} else if (item.isDone()) {			// Else, if workItem is 'DONE'...
-							count++;						// ...just increment the count of 'DONE' workItems.
 						}
 					}
 					
 					// If we've created all necessary workItems for these matrices...
 					if (highA == (subA.length - 1) && highB == (subB[0].length - 1)) {
 						this.buffer.setState(State.DONE);		// ...set SharedBuffer state to 'DONE'.
-//						this.buffer.setDone();
 					}
 					
-					// If all workItems are 'DONE' and Matrix C has been reassembled...
-					if (count == results.size()) {
-						this.printResult();
-						this.stop();
-					}
+					
 					
 				} // End of inner for loop.
 			} // End of outer for loop.
 			
+			while (!this.stop) {
+				this.checkResults();
+			}
 			
 		} // End of while loop.
 	}
@@ -156,7 +153,6 @@ public class Producer implements Runnable {
 				subMatrix[i][j] = matrix[i+rowIndex][j+columnIndex];
 			}
 		}
-		this.printResult();
 	}
 	
 	/**
@@ -170,6 +166,28 @@ public class Producer implements Runnable {
 			}
 		}
 		this.printResult();
+	}
+	
+	/**
+	 * 
+	 */
+	private void checkResults() {
+		int count = 0;		// This is a counter to track all 'DONE' workItems in the next for loop.
+		
+		for (WorkItem item : results) {		// Loop through results ArrayList to find all 'DONE' workItems
+			if (item.isDone()) {				// If a workItem is 'DONE' for calculating...
+				count++;						// ...just increment the count of 'DONE' workItems.
+			} else if (item.isReady()) {		// Else, if workItem is 'READY'...
+				populateMatrixC(item);			// ...add it's subC matrix to Matrix C
+				item.setState(State.DONE);		// ...and set the workItem's state to 'DONE'.
+				count++;						// ...increment the count of 'DONE' workItems.
+			}
+		}
+		
+		// If all workItems are 'DONE' and Matrix C has been reassembled...
+		if (count == results.size()) {
+			this.stop();
+		}
 	}
 	
 	
