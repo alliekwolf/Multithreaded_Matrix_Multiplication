@@ -11,6 +11,7 @@ public class Consumer implements Runnable {
 	private int id;
 	private SharedBuffer buffer;
 	private int sleepTime;
+	private int consumerItemsCount;
 	private boolean stop;
 	
 	
@@ -19,7 +20,13 @@ public class Consumer implements Runnable {
 		this.id = 1;
 		this.buffer = buffer;
 		this.sleepTime = 80;
+		this.consumerItemsCount = 0;
 		this.stop = false;
+	}
+	
+	// Getters and Setters
+	public int getConsumerItemsCount() {
+		return consumerItemsCount;
 	}
 	
 	
@@ -27,12 +34,13 @@ public class Consumer implements Runnable {
 	public void run() {
 		
 		while (!this.stop) {
-			this.calculateMatrixMultiplication();
 			try {
 				Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			this.calculateMatrixMultiplication();
+			this.consumerItemsCount++;
 		} // End of while loop
 		
 	}

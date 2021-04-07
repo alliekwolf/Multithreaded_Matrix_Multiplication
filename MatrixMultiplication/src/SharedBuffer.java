@@ -14,6 +14,8 @@ public class SharedBuffer {
 	private int in;
 	private int out;
 	private int itemCount;
+	private int fullBufferCount;
+	private int emptyBufferCount;
 	private State state;
 	
 	// Constructor
@@ -33,6 +35,14 @@ public class SharedBuffer {
 	
 	public int getCount() {
 		return this.count;
+	}
+	
+	public int getFullBufferCount() {
+		return this.fullBufferCount;
+	}
+	
+	public int getEmptyBufferCount() {
+		return this.emptyBufferCount;
 	}
 	
 	public int getItemCount() {
@@ -62,7 +72,9 @@ public class SharedBuffer {
 	// Synchronized methods
 	public synchronized WorkItem get() {
 		WorkItem workItem;
+		
 		while (this.count == 0) {
+			this.emptyBufferCount++;		// Increment count of times SharedBuffer is EMPTY.
 			try {
 				wait();
 			} catch(InterruptedException e) {}
@@ -83,7 +95,9 @@ public class SharedBuffer {
 	}
 	
 	public synchronized void put(WorkItem workItem) {
+		
 		while (this.count == this.MAX_BUFF_SIZE) {
+			this.fullBufferCount++;			// Increment count of times SharedBuffer is FULL.
 			try {
 				wait();
 			} catch (InterruptedException e) {}

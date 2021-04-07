@@ -19,7 +19,8 @@ public class Producer implements Runnable {
 	private int n;		// columns in Matrix A, rows in Matrix B
 	private int p;		// columns in Matrix B
 	private int splitSize;
-	private ArrayList<WorkItem> results;
+	private ArrayList<WorkItem> producerItems;
+	private int producerItemsCount;
 	private int doneCount;
 	private boolean stop;
 	
@@ -34,9 +35,15 @@ public class Producer implements Runnable {
 		this.matrixB = matrixB;
 		this.matrixC = new int[this.m][this.p];
 		this.splitSize = splitSize;
-		this.results = new ArrayList<WorkItem>();
+		this.producerItems = new ArrayList<WorkItem>();
+		this.producerItemsCount = this.producerItems.size();
 		this.doneCount = 0;
 		this.stop = false;
+	}
+	
+	// Getters and Setters
+	public int getProducerItemsCount() {
+		return this.producerItemsCount;
 	}
 	
 	
@@ -49,7 +56,7 @@ public class Producer implements Runnable {
 			
 			while (!this.stop) {
 				this.checkResults();						// Check results to see if all workItems are 'DONE'.
-				if (this.doneCount == results.size()) {		// If all workItems are 'DONE' and Matrix C has been reassembled...
+				if (this.doneCount == producerItems.size()) {		// If all workItems are 'DONE' and Matrix C has been reassembled...
 					this.stop();							// ...stop Producer thread.
 				}
 			}
@@ -71,10 +78,14 @@ public class Producer implements Runnable {
 	 * based on the split size.
 	 */
 	public void splitMatrices() {
+		int remainderA = (this.m % this.splitSize);		// remainder rows in matrixA
+		int remainderB = (this.p % this.splitSize);		// remainder columns in matrixB
+		int stepA = ((this.m - 1) / this.splitSize);
+		int stepB = ((this.p - 1) / this.splitSize);
+		
 		// Split matrices into sub-matrices, starting with the first sub-matrix (subA) created from matrixA.
-		for (int i = 0; i <= (this.m / this.splitSize); i++) {
+		for (int i = 0; i <= stepA; i++) {
 			
-			int remainderA = (this.m % this.splitSize);		// remainder rows in matrixA
 			int row = (i * this.splitSize);					// row index of matrixA = i * split size
 			int littleM;									// number of rows that will be in subA
 			
@@ -87,14 +98,13 @@ public class Producer implements Runnable {
 			int[][] subA = new int[littleM][this.n];		// Declare size of subA.
 			populateSubMatrix(subA, this.matrixA, row, 0);	// Populate subA.
 			
-			// Next, create a second sub-matrix (subB) from matrixB. 
-			for (int j = 0; j <= (this.p / this.splitSize); j++) {
+			// Next, create a second sub-matrix (subB) from matrixB.
+			for (int j = 0; j <= stepB; j++) {
 				
-				int remainderB = (this.p % this.splitSize);		// remainder columns in matrixB
 				int column = (j * this.splitSize);				// column index of matrixB = j * split size
 				int littleP;									// number of columns that will be in subB
 				
-				if ((this.n - column) > remainderB) {		// If there are more columns left than remainderB...
+				if ((this.p - column) > remainderB) {		// If there are more columns left than remainderB...
 					littleP = this.splitSize;				// ...number of columns in subB = split size
 				} else {									// Else, if we have reached the remainderB...
 					littleP = remainderB;					// ...number of columns = remainderB
@@ -109,7 +119,8 @@ public class Producer implements Runnable {
 				
 				// Create new WorkItem object from sub-matrices, then put in results ArrayList and SharedBuffer.
 				WorkItem workItem = new WorkItem(subA, subB, row, highA, column, highB);
-				this.results.add(workItem);
+				this.producerItems.add(workItem);
+				this.producerItemsCount++;
 				this.buffer.put(workItem);
 				
 				System.out.println(workItem.subAToString());
@@ -167,7 +178,7 @@ public class Producer implements Runnable {
 	private void checkResults() {
 		this.doneCount = 0;					// Reset doneCount to 0 every time method is called.
 		
-		for (WorkItem item : results) {		// Loop through results ArrayList to find all 'DONE' workItems
+		for (WorkItem item : producerItems) {		// Loop through results ArrayList to find all 'DONE' workItems
 			if (item.isDone()) {				// If a workItem is 'DONE' for calculating...
 				this.doneCount++;				// ...just increment the count of 'DONE' workItems.
 			} else if (item.isReady()) {		// Else, if workItem is 'READY'...
