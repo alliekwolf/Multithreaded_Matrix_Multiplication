@@ -10,16 +10,26 @@ public class Consumer implements Runnable {
 	// Data members
 	private int id;
 	private SharedBuffer buffer;
+	private int maxSleepTime;
 	private int sleepTime;
+	private int itemsConsumed;
 	private boolean stop;
 	
 	
 	// Constructor
-	public Consumer(SharedBuffer buffer) {
+	public Consumer(SharedBuffer buffer, int maxSleepTime) {
 		this.id = 1;
 		this.buffer = buffer;
-		this.sleepTime = 80;
+		this.maxSleepTime = maxSleepTime;
+		this.sleepTime = (int)(Math.random() * maxSleepTime);
+		this.itemsConsumed = 0;
 		this.stop = false;
+	}
+	
+	
+	// Getters and Setters
+	public int getItemsConsumed() {
+		return this.itemsConsumed;
 	}
 	
 	
@@ -28,6 +38,7 @@ public class Consumer implements Runnable {
 		
 		while (!this.stop) {
 			this.calculateMatrixMultiplication();
+			this.itemsConsumed++;
 			try {
 				Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
 			} catch (InterruptedException e) {

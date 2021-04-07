@@ -12,6 +12,8 @@ public class Producer implements Runnable {
 	// Data members
 	private int id;
 	private SharedBuffer buffer;
+	private int maxSleepTime;
+	private int sleepTime;
 	private int[][] matrixA;
 	private int[][] matrixB;
 	private int[][] matrixC;
@@ -24,9 +26,11 @@ public class Producer implements Runnable {
 	private boolean stop;
 	
 	// Constructor
-	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
+	public Producer(SharedBuffer buffer, int maxSleepTime, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
 		this.id = 1;
 		this.buffer = buffer;
+		this.maxSleepTime = maxSleepTime;
+		this.sleepTime = (int)(Math.random() * maxSleepTime);
 		this.m = m;
 		this.n = n;
 		this.p = p;
@@ -37,6 +41,12 @@ public class Producer implements Runnable {
 		this.results = new ArrayList<WorkItem>();
 		this.doneCount = 0;
 		this.stop = false;
+	}
+	
+	
+	// Getters and Setters
+	public int getDoneCount() {
+		return this.doneCount;
 	}
 	
 	

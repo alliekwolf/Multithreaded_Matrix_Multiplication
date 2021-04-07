@@ -13,6 +13,8 @@ public class SharedBuffer {
 	private int count;
 	private int in;
 	private int out;
+	private int timesEmpty;
+	private int timesFull;
 	private int itemCount;
 	private State state;
 	
@@ -22,6 +24,8 @@ public class SharedBuffer {
 		this.count = 0;
 		this.in = 0;
 		this.out = 0;
+		this.timesEmpty = 0;
+		this.timesFull = 0;
 		this.buffArray = new WorkItem[this.MAX_BUFF_SIZE];
 		this.itemCount = 0;
 	}
@@ -33,6 +37,14 @@ public class SharedBuffer {
 	
 	public int getCount() {
 		return this.count;
+	}
+	
+	public int getTimesEmpty() {
+		return this.timesEmpty;
+	}
+	
+	public int getTimesFull() {
+		return this.timesFull;
 	}
 	
 	public int getItemCount() {
@@ -72,6 +84,9 @@ public class SharedBuffer {
 		
 		this.out = (this.out + 1) % this.MAX_BUFF_SIZE;
 		this.count--;
+		if (this.count == 0) {
+			this.timesEmpty++;
+		}
 		
 		notifyAll();
 		
@@ -92,6 +107,9 @@ public class SharedBuffer {
 		this.in = (this.in + 1) % this.MAX_BUFF_SIZE;
 		this.count++;
 		this.itemCount++;
+		if (this.count == this.MAX_BUFF_SIZE) {
+			this.timesFull++;
+		}
 		
 		notifyAll();
 		
