@@ -1,4 +1,9 @@
 /**
+ * Consumer class creates consumer objects that will retrieve
+ * chunks of matrixA and matrixB from the SharedBuffer from the
+ * WorkItems in the buffer and perform matrix multiplication
+ * on them. The consumer stores the product of subMatrixA subMatrixB in 
+ * subC, a variable in the WorkItem.
  * 
  * @author Brian Steele
  * @author Cole Walsh
@@ -16,6 +21,11 @@ public class Consumer implements Runnable {
 	
 	
 	// Constructor
+	/**
+	 * Default constructor for Consumer
+	 * 
+	 * @param buffer - SharedBuffer object to hold WorkItems.
+	 */
 	public Consumer(SharedBuffer buffer) {
 		this.id = 1;
 		this.buffer = buffer;
@@ -25,11 +35,21 @@ public class Consumer implements Runnable {
 	}
 	
 	// Getters and Setters
+	/**
+	 * Returns the number of WorkItems the consumer has processed
+	 * 
+	 * @return int, the consumerItemsCount
+	 */
 	public int getConsumerItemsCount() {
 		return consumerItemsCount;
 	}
 	
 	
+	/**
+	 * Overridden method from the Runnable interface,
+	 * this method locks the sharedBuffer and performs 
+	 * the matrix multiplication on a WorkItem
+	 */
 	@Override
 	public void run() {
 		
@@ -45,12 +65,21 @@ public class Consumer implements Runnable {
 		
 	}
 	
+	/**
+	 * Useful method for stopping the run() method.
+	 */
 	public void stop() {
 		this.stop = true;
 	}
 	
 	
 	// Code edited from this tutorial:  https://www.youtube.com/watch?v=MZenB6qYqc0
+	
+	/**
+	 * Retrieves a WorkItem from the buffer using buffer.get(),
+	 * loads the subA and subB submatricies, performs the matrix
+	 * multiplication and puts the results into subC of the WorkItem.
+	 */
 	public void calculateMatrixMultiplication() {
 		
 		WorkItem workItem = this.buffer.get();		// This is where we will actually get the matrices from the SharedBuffer.
@@ -76,6 +105,11 @@ public class Consumer implements Runnable {
 		}
 	}
 	
+	/**
+	 * outputs a pretty-printed representation of subA, subB and the
+	 * result subC of the parts of the matricies in the WorkItem.
+	 * @param workItem
+	 */
 	private void outputResult(WorkItem workItem) {
 		String output = workItem.subAToString() + "  X \n" + workItem.subBToString() + "  = \n" + workItem.subCToString();
 		System.out.println(output);
