@@ -19,6 +19,11 @@ public class SharedBuffer {
 	private State state;
 	
 	// Constructor
+	/**
+	 * Constructor method for SharedBuffer object.
+	 * 
+	 * @param maxBuffSize - int
+	 */
 	public SharedBuffer(int maxBuffSize) {
 		this.MAX_BUFF_SIZE = maxBuffSize;
 		this.count = 0;
@@ -29,30 +34,67 @@ public class SharedBuffer {
 	}
 	
 	// Getters and Setters
+	/**
+	 * Returns SharedBuffer's MAX_BUFF_SIZE as an int.
+	 * 
+	 * @return MAX_BUFF_SIZE - int
+	 */
 	public int getMaxBuffSize() {
 		return MAX_BUFF_SIZE;
 	}
 	
+	/**
+	 * Returns SharedBuffer's count as an int.
+	 * 
+	 * @return count - int
+	 */
 	public int getCount() {
 		return this.count;
 	}
 	
+	/**
+	 * Returns SharedBuffer's fullBufferCount as an int.
+	 * 
+	 * @return count - int
+	 */
 	public int getFullBufferCount() {
 		return this.fullBufferCount;
 	}
 	
+	/**
+	 * Returns SharedBuffer's emptyBufferCount as an int.
+	 * 
+	 * @return emptyBufferCount - int
+	 */
 	public int getEmptyBufferCount() {
 		return this.emptyBufferCount;
 	}
 	
+	/**
+	 * Returns SharedBuffer's itemCount as an int.
+	 * 
+	 * @return itemCount - int
+	 */
 	public int getItemCount() {
 		return this.itemCount;
 	}
 	
 	// Methods controlling SharedBuffer State
+	/**
+	 * Sets the SharedBuffer's State to either 'WAITING', 'READY', or 'DONE' based 
+	 * on the parameter.
+	 * 
+	 * @param state - State
+	 */
 	public void setState(State state) {
 		this.state = state;
 	}
+	
+	/**
+	 * Checks the SharedBuffer's State and returns true if 'READY'.
+	 * 
+	 * @return true or false
+	 */
 	public boolean isReady() {
 		if(this.state == State.READY) {
 			return true;
@@ -60,6 +102,12 @@ public class SharedBuffer {
 			return false;
 		}
 	}
+	
+	/**
+	 * Checks the SharedBuffer's State and returns true if 'DONE'.
+	 * 
+	 * @return true or false
+	 */
 	public boolean isDone() {
 		if(this.state == State.DONE) {
 			return true;
@@ -70,6 +118,11 @@ public class SharedBuffer {
 	
 	
 	// Synchronized methods
+	/**
+	 * 
+	 * 
+	 * @return WorkItem object
+	 */
 	public synchronized WorkItem get() {
 		WorkItem workItem;
 		
@@ -94,6 +147,11 @@ public class SharedBuffer {
 		return workItem;
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @param workItem - WorkItem object
+	 */
 	public synchronized void put(WorkItem workItem) {
 		
 		while (this.count == this.MAX_BUFF_SIZE) {

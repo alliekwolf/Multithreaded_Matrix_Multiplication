@@ -1,9 +1,10 @@
+import java.util.Random;
+
 /**
- * Consumer class creates consumer objects that will retrieve
- * chunks of matrixA and matrixB from the SharedBuffer from the
- * WorkItems in the buffer and perform matrix multiplication
- * on them. The consumer stores the product of subMatrixA subMatrixB in 
- * subC, a variable in the WorkItem.
+ * Consumer class creates consumer objects that will retrieve chunks of matrixA 
+ * and matrixB from the SharedBuffer from the WorkItem objects in the buffer and 
+ * perform matrix multiplication on them. The Consumer stores the product of the 
+ * subA matrix and subB matrix in subC, a variable in the WorkItem object.
  * 
  * @author Brian Steele
  * @author Cole Walsh
@@ -12,43 +13,67 @@
  */
 public class Consumer implements Runnable {
 	
+	private Random rand = new Random();
+	
 	// Data members
 	private int id;
 	private SharedBuffer buffer;
+	private int maxSleepTime;
 	private int sleepTime;
+	private int totalSleepTime;
 	private int consumerItemsCount;
 	private boolean stop;
 	
-	
 	// Constructor
 	/**
-	 * Default constructor for Consumer
+	 * Constructor method for Consumer object.
 	 * 
-	 * @param buffer - SharedBuffer object to hold WorkItems.
+	 * @param id - int
+	 * @param buffer - SharedBuffer object
+	 * @param maxSleepTime - int
 	 */
-	public Consumer(SharedBuffer buffer) {
-		this.id = 1;
+	public Consumer(int id, SharedBuffer buffer, int maxSleepTime) {
+		this.id = id;
 		this.buffer = buffer;
-		this.sleepTime = 80;
+		this.maxSleepTime = maxSleepTime;
+		this.sleepTime = rand.nextInt(this.maxSleepTime);
+		this.totalSleepTime = 0;
 		this.consumerItemsCount = 0;
 		this.stop = false;
 	}
 	
 	// Getters and Setters
 	/**
-	 * Returns the number of WorkItems the consumer has processed
+	 * Returns Consumer's int id.
 	 * 
-	 * @return int, the consumerItemsCount
+	 * @return id - int
+	 */
+	public int getId() {
+		return this.id;
+	}
+	
+	/**
+	 * Returns Consumer's int totalSleepTime.
+	 * 
+	 * @return totalSleepTime - int
+	 */
+	public int getTotalSleepTime() {
+		return this.totalSleepTime;
+	}
+	
+	/**
+	 * Returns the number of WorkItem objects the Consumer has processed.
+	 * 
+	 * @return consumerItemsCount - int
 	 */
 	public int getConsumerItemsCount() {
 		return consumerItemsCount;
 	}
 	
-	
 	/**
-	 * Overridden method from the Runnable interface,
-	 * this method locks the sharedBuffer and performs 
-	 * the matrix multiplication on a WorkItem
+	 * Overridden method from the Runnable interface, this method locks the 
+	 * SharedBuffer, performs matrix multiplication on a WorkItem, and increments 
+	 * the consumerItemsCount by one every time a WorkItem is processed.
 	 */
 	@Override
 	public void run() {
@@ -56,6 +81,7 @@ public class Consumer implements Runnable {
 		while (!this.stop) {
 			try {
 				Thread.sleep(this.sleepTime);		// Force thread to sleep for a specified time.
+				this.totalSleepTime += this.sleepTime;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -66,7 +92,7 @@ public class Consumer implements Runnable {
 	}
 	
 	/**
-	 * Useful method for stopping the run() method.
+	 * Stops the Consumer thread's run() method by setting the stop boolean to true.
 	 */
 	public void stop() {
 		this.stop = true;
@@ -74,11 +100,11 @@ public class Consumer implements Runnable {
 	
 	
 	// Code edited from this tutorial:  https://www.youtube.com/watch?v=MZenB6qYqc0
-	
 	/**
-	 * Retrieves a WorkItem from the buffer using buffer.get(),
-	 * loads the subA and subB submatricies, performs the matrix
-	 * multiplication and puts the results into subC of the WorkItem.
+	 * Method for calculating a workItem's subC matrix. Calls the SharedBuffer get() method 
+	 * to return a workItem from the SharedBuffer and multiplies its subA and subB matrices 
+	 * together and puts the result in the workItem's subC matrix, then changes the workItem's 
+	 * State to 'READY'.
 	 */
 	public void calculateMatrixMultiplication() {
 		
@@ -96,7 +122,7 @@ public class Consumer implements Runnable {
 			}
 		}
 		workItem.setSubC(result);
-		workItem.setState(State.READY);
+		workItem.setState(State.READY);		// WorkItem is 'READY' for the Producer to get subC result.
 		
 		this.outputResult(workItem);		// Print result of multiplication.
 		
@@ -106,9 +132,10 @@ public class Consumer implements Runnable {
 	}
 	
 	/**
-	 * outputs a pretty-printed representation of subA, subB and the
-	 * result subC of the parts of the matricies in the WorkItem.
-	 * @param workItem
+	 * Outputs a workItem's subA, subB, and subC matrices as though they are part of a 
+	 * multiplication equation. 
+	 * 
+	 * @param workItem - WorkItem object
 	 */
 	private void outputResult(WorkItem workItem) {
 		String output = workItem.subAToString() + "  X \n" + workItem.subBToString() + "  = \n" + workItem.subCToString();

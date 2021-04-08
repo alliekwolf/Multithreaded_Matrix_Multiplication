@@ -21,27 +21,16 @@ public class WorkItem {
 	
 	// Constructor
 	/**
-	 * Constructor method for WorkItem
+	 * Constructor method for WorkItem object.
 	 * 
 	 * @param subA - int[][] of sub rows from matrix A
 	 * @param subB - int[][] of sub rows from matrix B
 	 * @param subC - int[][] will hold the result of subA X subB - Consumer class
 	 * 					will do the multiplication and store the result in subC
-	 * @param lowA - int the lowest number of rows and columns from matrixA
-	 * 				that will be used in subA
-	 * @param highA - int the highest row and column numbers from matrixA
-	 * 					that will be used to create subA
-	 * @param lowB - int the lowest row and column numbers from matrixB
-	 * 					that will be used to create subB
-	 * @param highB - int the highest row and column numbers from matrixB that
-	 * 					will be used to create subC
-	 * @param state - enum indicating where in the process the workItem is,
-	 * 					READY indicates workItem is ready for the producer to
-	 * 					get the subC results, DONE means the consumer has 
-	 * 					returned subC and the Producer has retrieved it. DONE
-	 * 					is also used to track the number of completed work
-	 * 					items. WAITING is used when the workItem is created.
-	 * 					
+	 * @param lowA
+	 * @param highA
+	 * @param lowB
+	 * @param highB
 	 */
 	public WorkItem(int[][]subA, int[][]subB, int lowA, int highA, int lowB, int highB) {
 		this.subA = subA;
@@ -56,88 +45,104 @@ public class WorkItem {
 	
 	// Getters and Setters
 	/**
-	 * Get the contents of subA
-	 * @return int[][] the contents of subA
+	 * Returns WorkItem's subA matrix as a 2-D int array.
+	 * 
+	 * @return subA - int[][]
 	 */
 	public int[][] getSubA() {
 		return this.subA;
 	}
 	
 	/**
-	 * Get the contents of subB
-	 * @return - int[][] the contents of subB
+	 * Returns WorkItem's subB matrix as a 2-D int array.
+	 * 
+	 * @return subB - int[][]
 	 */
 	public int[][] getSubB() {
 		return this.subB;
 	}
 	
 	/**
-	 * Get the contents of subC
-	 * @return - int[][] the contents of subC
+	 * Returns WorkItem's subC matrix as a 2-D int array.
+	 * 
+	 * @return subC - int[][]
 	 */
 	public int[][] getSubC() {
 		return this.subC;
 	}
 	
 	/**
-	 * Set the contents of subC
-	 * @param subC - int[][] holding the product of subA and subB
+	 * Sets WorkItem's subC matrix to a 2-D int array.
+	 * 
+	 * @param subC - int[][]
 	 */
 	public void setSubC(int[][] subC) {
 		this.subC = subC;
 	}
 	
 	/**
-	 * Get the lowest row and column locations for the items held in 
-	 * subA - they will be used to assemble the entire matrixC result in the 
-	 * 		Producer.
-	 * @return int low row and column locations for subA contents.
+	 * 
+	 * 
+	 * @return lowA - int
 	 */
 	public int getLowA() {
 		return this.lowA;
 	}
 	
 	/**
-	 * Get the lowest row and column locations for the items held in 
-	 * subB - they will be used to assemble the entire matrixC result in the 
-	 * 		Producer.
-	 * @return int low row and column locations for subB contents.
+	 * 
+	 * 
+	 * @return lowB - int
 	 */
 	public int getLowB() {
 		return this.lowB;
 	}
 	
 	/**
-	 * Get the highest row and column locations for the items held in 
-	 * subA - they will be used to assemble the entire matrixC result in the 
-	 * 		Producer.
-	 * @return int low row and column locations for subA contents.
+	 * 
+	 * 
+	 * @return highA - int
 	 */
 	public int getHighA() {
 		return this.highA;
 	}
 	
 	/**
-	 * Get the highest row and column locations for the items held in 
-	 * subB - they will be used to assemble the entire matrixC result in the 
-	 * 		Producer.
-	 * @return int low row and column locations for subB contents.
+	 * 
+	 * 
+	 * @return highB - int
 	 */
 	public int getHighB() {
 		return this.highB;
 	}
 	
 	/**
-	 * Set the state of the workItem.
-	 * @param state State object that holds an enum for possible states.
+	 * Sets the WorkItem's State to either 'WAITING', 'READY', or 'DONE' based 
+	 * on the parameter.
+	 * 
+	 * @param state - State
 	 */
 	public void setState(State state) {
 		this.state = state;
 	}
 	
 	/**
-	 * Checks if the state is set to READY
-	 * @return boolean checks if the state of the workItem is ready.
+	 * Checks the WorkItem's State and returns true if 'WAITING'.
+	 * 
+	 * @return true or false
+	 */
+	public boolean isWaiting() {
+		if (this.state == State.WAITING) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Checks the WorkItem's State and returns true if 'READY'.
+	 * 
+	 * @return true or false
 	 */
 	public boolean isReady() {
 		if (this.state == State.READY) {
@@ -148,8 +153,9 @@ public class WorkItem {
 	}
 	
 	/**
-	 * Checks if the state is set to DONE
-	 * @return boolean checks if the state of the workItem is DONE.
+	 * Checks the WorkItem's State and returns true if 'DONE'.
+	 * 
+	 * @return true or false
 	 */
 	public boolean isDone() {
 		if (this.state == State.DONE) {
@@ -162,8 +168,8 @@ public class WorkItem {
 	
 	// Multiplication method from the Consumer class.
 	/**
-	 * Performs the matrix math for subA and subB and puts the 
-	 * product in subC.
+	 * Multiplies the WorkItem's subA and subB matrices together and puts the result 
+	 * in the subC matrix.
 	 */
 	public void multiplySubMatrices() {
 		// Multiplication logic
@@ -179,8 +185,9 @@ public class WorkItem {
 	
 	// Print and String methods
 	/**
-	 * Creates a formated string for subA that can be printed.
-	 * @return String - formated version of subA
+	 * Outputs the WorkItem's subA matrix.
+	 * 
+	 * @return String
 	 */
 	public String subAToString() {
 		String output = "Sub A: [";
@@ -197,8 +204,9 @@ public class WorkItem {
 	}
 	
 	/**
-	 * Creates a formated string for subB that can be printed.
-	 * @return String - formated version of subB
+	 * Outputs the WorkItem's subB matrix.
+	 * 
+	 * @return String
 	 */
 	public String subBToString() {
 		String output = "Sub B: [";
@@ -215,8 +223,9 @@ public class WorkItem {
 	}
 	
 	/**
-	 * Creates a formated string for subC that can be printed.
-	 * @return String - formated version of subC
+	 * Outputs the WorkItem's subC matrix.
+	 * 
+	 * @return String
 	 */
 	public String subCToString() {
 		String output = "Sub C: [";
@@ -232,11 +241,7 @@ public class WorkItem {
 		return output; 
 	}
 	
-	/**
-	 * Creates a printable string representation of the WorkItem
-	 * 
-	 * @return string representing workItem.
-	 */
+	
 	@Override
 	public String toString() {
 		String output = "Work Item: \n";

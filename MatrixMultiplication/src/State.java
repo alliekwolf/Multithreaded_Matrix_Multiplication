@@ -1,4 +1,5 @@
 /**
+ * State enum defines WAITING, READY, and DONE states for a WorkItem object.
  * 
  * @author Brian Steele
  * @author Cole Walsh
@@ -8,6 +9,5 @@
 public enum State {
 	WAITING,
 	READY,
-	RUNNING,
 	DONE
 }

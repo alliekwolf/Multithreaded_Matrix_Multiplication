@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
+ * 
  * 
  * @author Brian Steele
  * @author Cole Walsh
@@ -9,9 +11,14 @@ import java.util.ArrayList;
  */
 public class Producer implements Runnable {
 	
+	private Random rand = new Random();
+	
 	// Data members
 	private int id;
 	private SharedBuffer buffer;
+	private int maxSleepTime;
+	private int sleepTime;
+	private int totalSleepTime;
 	private int[][] matrixA;
 	private int[][] matrixB;
 	private int[][] matrixC;
@@ -25,14 +32,27 @@ public class Producer implements Runnable {
 	private boolean stop;
 	
 	// Constructor
-	public Producer(SharedBuffer buffer, int[][] matrixA, int[][] matrixB, int m, int n, int p, int splitSize) {
-		this.id = 1;
+	/**
+	 * Constructor method for Producer object.
+	 * 
+	 * @param id - int
+	 * @param buffer - SharedBuffer object
+	 * @param maxSleepTime - int
+	 * @param matrixA - int[][]
+	 * @param matrixB - int[][]
+	 * @param splitSize - int
+	 */
+	public Producer(int id, SharedBuffer buffer, int maxSleepTime, int[][] matrixA, int[][] matrixB, int splitSize) {
+		this.id = id;
 		this.buffer = buffer;
-		this.m = m;
-		this.n = n;
-		this.p = p;
+		this.maxSleepTime = maxSleepTime;
+		this.sleepTime = rand.nextInt(this.maxSleepTime);
+		this.totalSleepTime = 0;
 		this.matrixA = matrixA;
 		this.matrixB = matrixB;
+		this.m = this.matrixA.length;
+		this.n = this.matrixB.length;
+		this.p = this.matrixB[0].length;
 		this.matrixC = new int[this.m][this.p];
 		this.splitSize = splitSize;
 		this.producerItems = new ArrayList<WorkItem>();
@@ -42,23 +62,58 @@ public class Producer implements Runnable {
 	}
 	
 	// Getters and Setters
+	/**
+	 * Returns Producer's int id.
+	 * 
+	 * @return id - int
+	 */
+	public int getId() {
+		return this.id;
+	}
+	
+	/**
+	 * Returns Producer's int totalSleepTime.
+	 * 
+	 * @return totalSleepTime - int
+	 */
+	public int getTotalSleepTime() {
+		return this.totalSleepTime;
+	}
+	
+	/**
+	 * Returns Producer's int producerItemsCount (should be the length of producerItems ArrayList).
+	 * 
+	 * @return producerItemsCount - int
+	 */
 	public int getProducerItemsCount() {
 		return this.producerItemsCount;
 	}
 	
-	
+	/**
+	 * Overridden method from the Runnable interface, this method locks the 
+	 * SharedBuffer, performs matrix multiplication on a WorkItem, and increments 
+	 * the consumerItemsCount by one every time a WorkItem is processed. Overridden 
+	 * method from the Runnable interface, this method locks the SharedBuffer, 
+	 * splits the sub-matrices of a WorkItem based on the Producer's splitSize, 
+	 * calls the checkResults() method to see which WorkItem's have been completed 
+	 * by the Consumer thread.
+	 */
 	@Override
 	public void run() {
 		System.out.println(this);		// Check that matrices have populated correctly.
 		
+		this.splitMatrices();			// Split matrices into sub-matrices.
+		
 		while (!this.stop) {
-			this.splitMatrices();		// Split matrices into sub-matrices.
-			
-			while (!this.stop) {
-				this.checkResults();						// Check results to see if all workItems are 'DONE'.
-				if (this.doneCount == producerItems.size()) {		// If all workItems are 'DONE' and Matrix C has been reassembled...
-					this.stop();							// ...stop Producer thread.
-				}
+			this.checkResults();		// Check results to see if all workItems are 'DONE'.
+			try {
+				Thread.sleep(this.sleepTime);
+				this.totalSleepTime += this.sleepTime;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (this.doneCount == producerItems.size()) {		// If all workItems are 'DONE' and Matrix C has been reassembled...
+				this.stop();									// ...stop Producer thread.
 			}
 		}
 		
@@ -159,8 +214,9 @@ public class Producer implements Runnable {
 	}
 	
 	/**
+	 * Populate matrixC with values in a workItem's subC matrix.
 	 * 
-	 * @param workItem
+	 * @param workItem - WorkItem object
 	 */
 	public void populateMatrixC(WorkItem workItem) {
 		for (int i = 0; i <= (workItem.getHighA() - workItem.getLowA()); i++) {
@@ -173,7 +229,9 @@ public class Producer implements Runnable {
 	
 	
 	/**
-	 * 
+	 * Method for looping through the producerItems ArrayList to find WorkItems that have 
+	 * been marked 'DONE' by the Consumer thread. Increments doneCount for every DONE WorkItem 
+	 * object found and populates matrixC with the WorkItem's finished subC matrix.
 	 */
 	private void checkResults() {
 		this.doneCount = 0;					// Reset doneCount to 0 every time method is called.
@@ -190,7 +248,7 @@ public class Producer implements Runnable {
 	}
 	
 	/**
-	 * 
+	 * Prints values of matrixC.
 	 */
 	public void printResult() {
 		String output = "Matrix C: [";
