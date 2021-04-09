@@ -37,7 +37,7 @@ public class MatrixMultiplication {
 		// between putting two pairs of sub-rows of A and sub-columns of B
 		// into the shared queue (must wait before next subsections)
 		int maxProducerSleepTime = 20;		// sleep time for Producer object between creating sub-matrices
-		int maxConsumerSleepTime = 400;		// sleep time for Consumer object between multiplying sub-matrices
+		int maxConsumerSleepTime = 80;		// sleep time for Consumer object between multiplying sub-matrices
 		int maxThreadSleepTime = 0;			// the maximum thread sleep time
 		// the current moment in simulation time
 		// need to clarify, is this turn based or
