@@ -22,13 +22,13 @@ public class MatrixMultiplication {
 	public static void main(String[] args) throws IOException {
 		
 		SharedBuffer buffer;		// shared buffer object for the producer and consumer
-		int maxBuffSize = 100;		// maximum size of the shared buffer
+		int maxBuffSize = 5;		// maximum size of the shared buffer
 		Producer producer;			// Producer object
 		Consumer consumer;			// Consumer object
-		int m = 100;				// number of rows in Matrix A
-		int n = 100;				// number of columns in Matrix A, rows in Matrix B
-		int p = 100;				// number of columns in Matrix B
-		int splitSize = 7;		// number of sub-rows of Matrix A and sub-columns of Matrix B to be multiplied
+		int m = 10;				// number of rows in Matrix A
+		int n = 10;				// number of columns in Matrix A, rows in Matrix B
+		int p = 10;				// number of columns in Matrix B
+		int splitSize = 3;		// number of sub-rows of Matrix A and sub-columns of Matrix B to be multiplied
 		int[][] matrixA;		// Matrix A will be multiplied by...
 		int[][] matrixB;		// ...Matrix B
 		// result of the matrix multiplication
@@ -85,6 +85,8 @@ public class MatrixMultiplication {
 					break;
 				case "N":
 				case "n":
+					numProducerThreads = 1;
+					numConsumerThreads = 1;
 					flag = true;	// If no file loaded, exit loop and use hard-coded data.
 					break;
 				default:
@@ -117,22 +119,21 @@ public class MatrixMultiplication {
 		
 		
 		// Start running the SharedBuffer...
-		int producerId = numProducerThreads + 1;
-		int consumerId = numConsumerThreads + 1;
+		int producerId = numProducerThreads;
+		int consumerId = numConsumerThreads;
 		
 		buffer = new SharedBuffer(maxBuffSize);
 		producer = new Producer(producerId, buffer, maxProducerSleepTime, matrixA, matrixB, splitSize);
 		consumer = new Consumer(consumerId, buffer, maxConsumerSleepTime);
-//		Consumer consumer2 = new Consumer((consumerId + 1), buffer, maxConsumerSleepTime);
+
 		
 		Thread t1 = new Thread(producer);
-		numProducerThreads++;
+		
 		
 		Thread t2 = new Thread(consumer);
-		numConsumerThreads++;
+	
 		
-//		Thread t3 = new Thread(consumer2);
-//		numConsumerThreads++;
+
 		
 		// Get current time for calculating simulationTotalTime.
 		simulationStartTime = System.nanoTime();

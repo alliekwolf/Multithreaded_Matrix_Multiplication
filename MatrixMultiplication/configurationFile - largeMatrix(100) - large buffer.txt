@@ -1,8 +1,8 @@
-M = 100
-N = 100
-P = 100
-MaxBuffSize = 100
-SplitSize = 7
-NumConsumer = 0
-MaxProducerSleepTime = 2
-MaxConsumerSleepTime = 800
+M = 60
+N = 60
+P = 60
+MaxBuffSize = 10
+SplitSize = 20
+NumConsumer = 1
+MaxProducerSleepTime = 400
+MaxConsumerSleepTime = 400
