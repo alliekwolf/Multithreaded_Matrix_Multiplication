@@ -86,6 +86,14 @@ public class Producer implements Runnable {
 	}
 	
 	/**
+	 * get the values of matrix C
+	 * @return int[][] the values of matrix C.
+	 */
+	public int[][] getMatrixC() {
+		return this.matrixC;
+	}
+	
+	/**
 	 * Returns Producer's int producerItemsCount (should be the length of producerItems ArrayList).
 	 * 
 	 * @return producerItemsCount - int
@@ -297,5 +305,7 @@ public class Producer implements Runnable {
 		
 		return output;
 	}
+	
+	
 	
 }

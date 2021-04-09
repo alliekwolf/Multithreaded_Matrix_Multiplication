@@ -140,15 +140,18 @@ public class MatrixMultiplication {
 		
 		t1.start();
 		t2.start();
-//		t3.start();
+
 		
 		try {
 			t1.join();
 			t2.join();
-//			t3.join();
+
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		matrixC = producer.getMatrixC();
+		
 		
 		// Calculate simulationTotalTime.
 		simulationEndTime = System.nanoTime();
@@ -163,6 +166,10 @@ public class MatrixMultiplication {
 		
 		System.out.println("Sequential Solution:");
 		outputMatrix(sequentialSolution);
+		System.out.println();
+		
+		System.out.println("Producer Consumer Solution:");
+		outputMatrix(matrixC);
 		System.out.println();
 		
 		
