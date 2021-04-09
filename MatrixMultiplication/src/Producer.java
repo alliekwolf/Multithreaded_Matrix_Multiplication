@@ -2,7 +2,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * 
+ * Producer class creates a Producer object that takes a number of rows from one 
+ * matrix (matrixA), and a number of columns from another (matrixB) two create two 
+ * sub-matrices (subA and subB, respectively), with which the Producer object will 
+ * then create a WorkItem that it will put in its SharedBuffer. The Producer also 
+ * keeps an ArrayList of all WorkItem objects it creates and iterates through the 
+ * list for which WorkItems the Consumer thread has finished multiplying.
  * 
  * @author Brian Steele
  * @author Cole Walsh
