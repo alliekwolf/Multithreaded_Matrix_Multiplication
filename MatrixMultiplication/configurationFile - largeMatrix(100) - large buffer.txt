@@ -4,5 +4,5 @@ P = 100
 MaxBuffSize = 100
 SplitSize = 7
 NumConsumer = 0
-MaxProducerSleepTime = 20
-MaxConsumerSleepTime = 400
+MaxProducerSleepTime = 2
+MaxConsumerSleepTime = 800
